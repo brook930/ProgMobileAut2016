@@ -10,7 +10,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         //Create the main activity and wait 5s before launching it
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
