@@ -29,13 +29,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     @Override
-    public void onSensorChanged(SensorEvent sEvent) {
-        Sensor mySensor = sEvent.sensor;
+    public void onSensorChanged(SensorEvent event) {
+        Sensor mySensor = event.sensor;
 
         if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float x = sEvent.values[0];
-            float y = sEvent.values[1];
-            float z = sEvent.values[2];
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
 
             long curTime = System.currentTimeMillis();
 
@@ -61,11 +61,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    //Stop listening to the accelerometer when user is out of app
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this);
     }
 
+
+    //Listen to the accelerometer when user is back on the app
     protected void onResume() {
         super.onPause();
         mSensorManager.registerListener(this, mSensor, mSensorManager.SENSOR_DELAY_NORMAL);
