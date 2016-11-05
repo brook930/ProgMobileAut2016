@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -15,8 +17,8 @@ public class ViewInGame extends View {
     private Paint mPaint;
     private float mFontSize;
 
-    int px = 400;
-    int py = 800;
+    int px = 200;
+    int py = 100;
 
     int dx = -10;
 
@@ -66,6 +68,10 @@ public class ViewInGame extends View {
 
 
         mPaint.setColor(Color.RED);
+        mPaint.setAntiAlias(false);
+        mPaint.setDither(true);
+        mPaint.setFilterBitmap(false);
+
         can.drawBitmap(b, x, y, mPaint);
 
 
@@ -76,15 +82,24 @@ public class ViewInGame extends View {
     void RenderShip(Canvas can)
     {
 
-        Bitmap b= BitmapFactory.decodeResource(getResources(), R.mipmap.ship);
+        Bitmap b= BitmapFactory.decodeResource(getResources(), R.drawable.boxer);
 
-        drawShip(can, b, px, py);
+        Bitmap bPrime = Bitmap.createBitmap(b, 600, 0, 230, 550);
+
+        //Bitmap bb = Bitmap.createScaledBitmap(bPrime, 200, 200, false);
+
+        drawShip(can, bPrime, 830, 350);
+
+
+        Bitmap bPrimePrime = Bitmap.createBitmap(b, 17, 1700, 260, 300);
+
+        drawShip(can, bPrimePrime, 800, 577);
 
         if (px < 0) dx=10;
         if (px > can.getWidth() - b.getWidth()) dx=-10;
 
 
-        px+=dx;
+        px+=dx*0;
 
         invalidate();
         Log.i("info", " px : " + px);
