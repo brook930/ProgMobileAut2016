@@ -21,11 +21,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         mSensorManager = (SensorManager) getSystemService(this.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mSensor, mSensorManager.SENSOR_DELAY_NORMAL);
+
+        ViewInGame view = new ViewInGame(this);
+        setContentView(view);
     }
 
     @Override
