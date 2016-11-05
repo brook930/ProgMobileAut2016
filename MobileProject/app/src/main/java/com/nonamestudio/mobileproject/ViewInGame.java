@@ -12,10 +12,22 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+
+class Drawable {
+
+    public Bitmap image;
+    public int x;
+    public int y;
+
+}
+
 public class ViewInGame extends View {
 
     private Paint mPaint;
     private float mFontSize;
+
+    private ArrayList<Drawable> elementsToDraw = new ArrayList<Drawable>();
 
     int px = 200;
     int py = 100;
@@ -33,9 +45,20 @@ public class ViewInGame extends View {
         mPaint.setTextSize(mFontSize);
 
 
-        Log.i("info", " color " + mPaint.getColor());
+        //Log.i("info", " color " + mPaint.getColor());
 
-        //mPaint.setColor(Color.GREEN);
+    }
+
+    public void addElementToDraw(Bitmap element, int x, int y)
+    {
+
+        Drawable drawable = new Drawable();
+        drawable.image = element;
+        drawable.x = x;
+        drawable.y = y;
+
+        elementsToDraw.add(drawable);
+
     }
 
     @Override
@@ -43,9 +66,33 @@ public class ViewInGame extends View {
 
 
         super.onDraw(canvas);
-        RenderShip(canvas);
 
-        canvas.drawText("The score goes here : " , 20, 60, mPaint);
+        for(int i = 0; i < elementsToDraw.size(); i++)
+        {
+
+            draw(canvas, elementsToDraw.get(i).image,
+                    elementsToDraw.get(i).x,
+                    elementsToDraw.get(i).y);
+
+        }
+
+        elementsToDraw.clear();
+
+        //canvas.drawText("The score goes here : " , 20, 60, mPaint);
+
+    }
+
+    private void draw(Canvas canvas, Bitmap image, int x, int y)
+    {
+        mPaint.setColor(Color.RED);
+        mPaint.setAntiAlias(false);
+        mPaint.setDither(true);
+        mPaint.setFilterBitmap(false);
+
+        canvas.drawBitmap(image, x, y, mPaint);
+
+
+        Log.i("info", " in draw");
 
     }
 
@@ -57,28 +104,6 @@ public class ViewInGame extends View {
         return true;
     }
 
-
-    void drawShip(Canvas can, Bitmap b, int x, int y)
-    {
-        int w = 50;
-        int h= 100;
-       /* Drawable d = getContext().getResources().getDrawable(R.drawable.ship);
-        d.setBounds(x-w,y+h,x+w,y-h);;
-        d.draw(can);*/
-
-
-        mPaint.setColor(Color.RED);
-        mPaint.setAntiAlias(false);
-        mPaint.setDither(true);
-        mPaint.setFilterBitmap(false);
-
-        can.drawBitmap(b, x, y, mPaint);
-
-
-        Log.i("info", " in draw");
-        Log.i("info", " color " + mPaint.getColor());
-    }
-
     void RenderShip(Canvas can)
     {
 
@@ -86,14 +111,7 @@ public class ViewInGame extends View {
 
         Bitmap bPrime = Bitmap.createBitmap(b, 600, 0, 230, 550);
 
-        //Bitmap bb = Bitmap.createScaledBitmap(bPrime, 200, 200, false);
-
-        drawShip(can, bPrime, 830, 350);
-
-
         Bitmap bPrimePrime = Bitmap.createBitmap(b, 17, 1700, 260, 300);
-
-        drawShip(can, bPrimePrime, 800, 577);
 
         if (px < 0) dx=10;
         if (px > can.getWidth() - b.getWidth()) dx=-10;
@@ -103,6 +121,15 @@ public class ViewInGame extends View {
 
         invalidate();
         Log.i("info", " px : " + px);
+
+    }
+
+    Bitmap openImage()
+    {
+
+        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.boxer);
+
+        return b;
 
     }
 
