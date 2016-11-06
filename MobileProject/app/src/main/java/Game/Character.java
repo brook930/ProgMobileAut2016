@@ -22,6 +22,13 @@ public class Character {
 
     }
 
+    public void update()
+    {
+
+        m_anim.update();
+
+    }
+
     public void receiveDamage(int damage)
     {
 

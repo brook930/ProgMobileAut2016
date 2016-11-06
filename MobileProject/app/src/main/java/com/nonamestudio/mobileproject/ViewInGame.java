@@ -8,11 +8,19 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Hashtable;
+
+import Game.GameManager;
 
 class Drawable {
 
@@ -22,18 +30,18 @@ class Drawable {
 
 }
 
-public class ViewInGame extends View {
+public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
+
+    private MainThread thread;
 
     private Paint mPaint;
     private float mFontSize;
 
-    private ArrayList<Drawable> elementsToDraw = new ArrayList<Drawable>();
+    static public Hashtable<String, Bitmap> imagesTable = new Hashtable<String, Bitmap>();
 
-    int px = 200;
-    int py = 100;
+    static private ArrayList<Drawable> elementsToDraw = new ArrayList<Drawable>();
 
-    int dx = -10;
-
+    private GameManager gameManager;
 
     public ViewInGame(Context context) {
         super(context);
@@ -44,12 +52,51 @@ public class ViewInGame extends View {
         mPaint.setColor(Color.RED);
         mPaint.setTextSize(mFontSize);
 
+        imagesTable.put("boxer", BitmapFactory.decodeResource(getResources(), R.drawable.boxer));
+
+        gameManager = new GameManager(this);
+
+        getHolder().addCallback(this);
+
+        thread = new MainThread(getHolder(), this);
+
+        // Make ViewInGame focusable so it can handle events
+        setFocusable(true);
+
 
         //Log.i("info", " color " + mPaint.getColor());
 
     }
 
-    public void addElementToDraw(Bitmap element, int x, int y)
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
+    {}
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder)
+    {
+        boolean retry = true;
+        while(retry) {
+            try {
+                thread.setRunning(false);
+                thread.join();
+            }catch(InterruptedException e) {e.printStackTrace();}
+            retry = false;
+        }
+
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder)
+    {
+
+        // we can safely start the game loop
+        thread.setRunning(true);
+        thread.start();
+
+    }
+
+    public static void addElementToDraw(Bitmap element, int x, int y)
     {
 
         Drawable drawable = new Drawable();
@@ -62,15 +109,14 @@ public class ViewInGame extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    public void draw(Canvas canvas) {
 
-
-        super.onDraw(canvas);
+        super.draw(canvas);
 
         for(int i = 0; i < elementsToDraw.size(); i++)
         {
 
-            draw(canvas, elementsToDraw.get(i).image,
+            drawImage(canvas, elementsToDraw.get(i).image,
                     elementsToDraw.get(i).x,
                     elementsToDraw.get(i).y);
 
@@ -78,11 +124,9 @@ public class ViewInGame extends View {
 
         elementsToDraw.clear();
 
-        //canvas.drawText("The score goes here : " , 20, 60, mPaint);
-
     }
 
-    private void draw(Canvas canvas, Bitmap image, int x, int y)
+    private void drawImage(Canvas canvas, Bitmap image, int x, int y)
     {
         mPaint.setColor(Color.RED);
         mPaint.setAntiAlias(false);
@@ -91,17 +135,22 @@ public class ViewInGame extends View {
 
         canvas.drawBitmap(image, x, y, mPaint);
 
-
-        Log.i("info", " in draw");
-
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
+        Log.i("pouet", "touch");
 
         invalidate();
         return true;
+    }
+
+    public void display()
+    {
+
+        invalidate();
+
     }
 
     void RenderShip(Canvas can)
@@ -113,23 +162,14 @@ public class ViewInGame extends View {
 
         Bitmap bPrimePrime = Bitmap.createBitmap(b, 17, 1700, 260, 300);
 
-        if (px < 0) dx=10;
-        if (px > can.getWidth() - b.getWidth()) dx=-10;
-
-
-        px+=dx*0;
-
         invalidate();
-        Log.i("info", " px : " + px);
 
     }
 
-    Bitmap openImage()
+    public void update()
     {
 
-        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.boxer);
-
-        return b;
+        gameManager.update();
 
     }
 

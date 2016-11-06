@@ -7,8 +7,12 @@ import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.util.List;
+
+import Game.GameManager;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
     private SensorManager mSensorManager;
@@ -18,9 +22,17 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private float lastX, lastY, lastZ;
     private static final int SHAKE_THRESHOLD =0;
 
+    private GameManager gameManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // turn title off
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        // set to fullscreen
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         mSensorManager = (SensorManager) getSystemService(this.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -28,6 +40,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         ViewInGame view = new ViewInGame(this);
         setContentView(view);
+
+
+
     }
 
     @Override
@@ -48,7 +63,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 float speed = Math.abs(x + y + z - lastX - lastY - lastZ)/ diffTime * 10000;
 
                 if (speed > SHAKE_THRESHOLD) {
-                    Log.i("X : ", Float.toString(y));
+                    //Log.i("X : ", Float.toString(y));
                 }
 
                 lastX = x;
