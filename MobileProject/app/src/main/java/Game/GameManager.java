@@ -33,7 +33,9 @@ public class GameManager {
     public void update()
     {
 
+        if(m_player1 != null)
         m_player1.update();
+        if(m_player2 != null)
         m_player2.update();
 
     }

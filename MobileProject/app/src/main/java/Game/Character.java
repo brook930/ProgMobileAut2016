@@ -16,7 +16,7 @@ public class Character {
     {
 
         m_lifePoints = lifePoints;
-        m_anim = new Anim(isForeground);
+        m_anim = new Anim(isForeground, 0);
 
         m_isInvincible = false;
 

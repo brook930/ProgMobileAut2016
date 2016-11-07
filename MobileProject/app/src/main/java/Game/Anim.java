@@ -2,10 +2,11 @@ package Game;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 
-import com.nonamestudio.mobileproject.R;
 import com.nonamestudio.mobileproject.ViewInGame;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 /**
@@ -25,39 +26,156 @@ class Frame
 
 }
 
-public class Anim {
+class Timeline
+{
 
-    boolean m_isForeground;
+    ArrayList<Frame> frames = new ArrayList<Frame>();
+    ArrayList<Integer> timeSteps = new ArrayList<Integer>();
 
-    Bitmap spriteSheet;
-    Hashtable<String, Frame> frameTable = new Hashtable<String, Frame>();
+    public Frame currentFrame;
+    public Integer currentStep;
 
-    public Anim(boolean isForeground)
+    int startTime;
+
+    boolean isPlaying;
+
+    public void start()
     {
 
-        spriteSheet = ViewInGame.imagesTable.get("boxer");
+        currentStep = 0;
+        currentFrame = frames.get(currentStep);
 
-        frameTable.put("idle1", new Frame(0,0, 20, 20));
+        startTime = (int)(System.nanoTime() / 1000000);
 
+        isPlaying = true;
 
+    }
+
+    public void stop()
+    {
+
+        startTime = -1;
+        isPlaying = false;
 
     }
 
     public void update()
     {
 
-        Bitmap bPrime = Bitmap.createBitmap(spriteSheet, 600, 0, 230, 550);
+        int timeFromStart = (int)((System.nanoTime() / 1000000) - startTime);
 
-        ViewInGame.addElementToDraw(bPrime, 0, 0);
+        if(timeFromStart > timeSteps.get(currentStep + 1))
+        {
+
+            currentStep++;
+            currentFrame = frames.get(currentStep);
+
+        }
+
+        if(currentStep == frames.size() - 1)
+            start();
 
     }
 
-    public boolean isForeground() {
-        return m_isForeground;
+    void addStep(Frame frame, int timeStep)
+    {
+
+        frames.add(frame);
+        timeSteps.add(timeStep);
+
     }
 
-    public void setIsForeground(boolean isForeground) {
-        this.m_isForeground = isForeground;
+}
+
+public class Anim {
+
+    boolean m_isForeground;
+
+    Bitmap spriteSheet;
+    private Hashtable<String, Timeline> timelines = new Hashtable<String, Timeline>();
+
+    private Timeline currentTimeline;
+
+    private int m_zOrder = 0;
+
+    public Anim(boolean isForeground, int zOrder)
+    {
+
+        spriteSheet = ViewInGame.imagesTable.get("boxer");
+
+        m_isForeground = isForeground;
+        if(isForeground)
+            m_zOrder = 10;
+        else
+            m_zOrder = 0;
+
+        timelines.put("idle", new Timeline());
+
+        if(!isForeground) {
+            timelines.get("idle").addStep(new Frame(
+                    (int) (0.011601 * spriteSheet.getWidth()),
+                    (int) (0.003738 * spriteSheet.getHeight()),
+                    (int) (0.088167 * spriteSheet.getWidth()),
+                    (int) (0.155140 * spriteSheet.getHeight())), 0);
+
+            timelines.get("idle").addStep(new Frame(
+                    (int) (0.122970 * spriteSheet.getWidth()),
+                    (int) (0.003738 * spriteSheet.getHeight()),
+                    (int) (0.088167 * spriteSheet.getWidth()),
+                    (int) (0.155140 * spriteSheet.getHeight())), 200);
+
+            timelines.get("idle").addStep(new Frame(
+                    (int) (0.011601 * spriteSheet.getWidth()),
+                    (int) (0.003738 * spriteSheet.getHeight()),
+                    (int) (0.088167 * spriteSheet.getWidth()),
+                    (int) (0.155140 * spriteSheet.getHeight())), 400);
+        }
+        else
+        {
+
+            timelines.get("idle").addStep(new Frame(
+                    (int) (0.006961 * spriteSheet.getWidth()),
+                    (int) (0.532710 * spriteSheet.getHeight()),
+                    (int) (0.099768 * spriteSheet.getWidth()),
+                    (int) (0.091589 * spriteSheet.getHeight())), 0);
+
+            timelines.get("idle").addStep(new Frame(
+                    (int) (0.350348 * spriteSheet.getWidth()),
+                    (int) (0.532710 * spriteSheet.getHeight()),
+                    (int) (0.078886 * spriteSheet.getWidth()),
+                    (int) (0.093458 * spriteSheet.getHeight())), 200);
+
+            timelines.get("idle").addStep(new Frame(
+                    (int) (0.006961 * spriteSheet.getWidth()),
+                    (int) (0.532710 * spriteSheet.getHeight()),
+                    (int) (0.099768 * spriteSheet.getWidth()),
+                    (int) (0.091589 * spriteSheet.getHeight())), 400);
+
+        }
+
+        currentTimeline = timelines.get("idle");
+
+        currentTimeline.start();
+
+    }
+
+    public void update()
+    {
+
+        currentTimeline.update();
+
+        Bitmap bPrime = Bitmap.createBitmap(spriteSheet,
+                currentTimeline.currentFrame.x,
+                currentTimeline.currentFrame.y,
+                currentTimeline.currentFrame.w,
+                currentTimeline.currentFrame.h);
+
+        if(m_isForeground)
+            ViewInGame.addElementToDraw(bPrime, 0.5f, 1.0f, "bottom", m_zOrder);
+        else
+            ViewInGame.addElementToDraw(bPrime, 0.5f, 0.1f, "top", m_zOrder);
+
+
     }
 
 }
