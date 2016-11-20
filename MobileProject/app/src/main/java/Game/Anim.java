@@ -125,53 +125,39 @@ public class Anim {
 
         timelines.put("idle", new Timeline());
         timelines.put("punch", new Timeline());
+        timelines.put("hit", new Timeline());
 
         if(!isForeground) {
-            timelines.get("idle").addStep(new Frame(
-                    (int) (0.011601 * spriteSheet.getWidth()),
-                    (int) (0.003738 * spriteSheet.getHeight()),
-                    (int) (0.088167 * spriteSheet.getWidth()),
-                    (int) (0.155140 * spriteSheet.getHeight()), spriteSheet), 0);
 
-            timelines.get("idle").addStep(new Frame(
-                    (int) (0.122970 * spriteSheet.getWidth()),
-                    (int) (0.003738 * spriteSheet.getHeight()),
-                    (int) (0.088167 * spriteSheet.getWidth()),
-                    (int) (0.155140 * spriteSheet.getHeight()), spriteSheet), 200);
+            timelines.get("idle").addStep(new Frame(123, 5, 44, 83, spriteSheet), 0);
 
-            timelines.get("idle").addStep(new Frame(
-                    (int) (0.011601 * spriteSheet.getWidth()),
-                    (int) (0.003738 * spriteSheet.getHeight()),
-                    (int) (0.088167 * spriteSheet.getWidth()),
-                    (int) (0.155140 * spriteSheet.getHeight()), spriteSheet), 400);
+            timelines.get("idle").addStep(new Frame(123, 2, 47, 83, spriteSheet), 220);
+
+            timelines.get("idle").addStep(new Frame(48, 5, 44, 83, spriteSheet), 440);
+
+            timelines.get("idle").addStep(new Frame(45, 2, 47, 83, spriteSheet), 660);
+
+            timelines.get("idle").addStep(new Frame(123, 5, 44, 83, spriteSheet), 880);
+
+            timelines.get("hit").addStep(new Frame(273, 3, 48, 85, spriteSheet), 0);
 
         }
         else
         {
 
-            timelines.get("idle").addStep(new Frame(
-                    (int) (0.006961 * spriteSheet.getWidth()),
-                    (int) (0.532710 * spriteSheet.getHeight()),
-                    (int) (0.099768 * spriteSheet.getWidth()),
-                    (int) (0.091589 * spriteSheet.getHeight()), spriteSheet), 0);
+            timelines.get("idle").addStep(new Frame(3, 285, 43, 49, spriteSheet), 0);
 
-            timelines.get("idle").addStep(new Frame(
-                    (int) (0.350348 * spriteSheet.getWidth()),
-                    (int) (0.532710 * spriteSheet.getHeight()),
-                    (int) (0.078886 * spriteSheet.getWidth()),
-                    (int) (0.093458 * spriteSheet.getHeight()), spriteSheet), 200);
+            timelines.get("idle").addStep(new Frame(3, 285, 46, 46, spriteSheet), 200);
 
-            timelines.get("idle").addStep(new Frame(
-                    (int) (0.006961 * spriteSheet.getWidth()),
-                    (int) (0.532710 * spriteSheet.getHeight()),
-                    (int) (0.099768 * spriteSheet.getWidth()),
-                    (int) (0.091589 * spriteSheet.getHeight()), spriteSheet), 400);
+            timelines.get("idle").addStep(new Frame(3, 285, 43, 49, spriteSheet), 400);
 
-            timelines.get("punch").addStep(new Frame(
-                    (int) (0.113689 * spriteSheet.getWidth()),
-                    (int) (0.504673 * spriteSheet.getHeight()),
-                    (int) (0.078886 * spriteSheet.getWidth()),
-                    (int) (0.119626 * spriteSheet.getHeight()), spriteSheet), 0);
+            timelines.get("idle").addStep(new Frame(0, 285, 46, 46, spriteSheet), 600);
+
+            timelines.get("idle").addStep(new Frame(0, 285, 46, 46, spriteSheet), 800);
+
+
+
+            timelines.get("punch").addStep(new Frame(49, 270, 34, 64, spriteSheet), 0);
 
         }
 
@@ -198,7 +184,7 @@ public class Anim {
         if(m_isForeground)
             ViewInGame.addElementToDraw(currentTimeline.currentFrame.bitmap, 0.5f, 1.0f, "bottom", m_zOrder, 12.0f);
         else
-            ViewInGame.addElementToDraw(currentTimeline.currentFrame.bitmap, 0.5f, 0.1f, "top", m_zOrder, 12.0f);
+            ViewInGame.addElementToDraw(currentTimeline.currentFrame.bitmap, 0.5f, 0.2f, "top", m_zOrder, 12.0f);
 
     }
 

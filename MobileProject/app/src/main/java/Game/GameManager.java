@@ -16,9 +16,9 @@ public class GameManager {
     public GameManager(boolean vsIA)
     {
 
-        m_currentPlayer = new Character(3, true);
+        m_currentPlayer = new Character(3, true, this);
 
-        m_enemyPlayer = new Character(3, false);
+        m_enemyPlayer = new Character(3, false, this);
 
         this.vsIA = vsIA;
 
@@ -55,6 +55,19 @@ public class GameManager {
     {
 
         return 0;
+
+    }
+
+    public void hit()
+    {
+
+        if(m_enemyPlayer.state != CharState.DODGING)
+        {
+
+            m_enemyPlayer.state = CharState.DAMAGED;
+            m_enemyPlayer.m_anim.playAnim("hit");
+
+        }
 
     }
 

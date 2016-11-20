@@ -9,7 +9,8 @@ enum CharState {
     IDLE,
     PUNCHING,
     DODGING,
-    FAKING
+    FAKING,
+    DAMAGED
 
 };
 
@@ -25,12 +26,15 @@ public class Character {
     long punchingTime = 300;
     long dodgingTime;
     long fakingTime;
+    long damagedTime = 300;
 
     long startTime = 0;
 
+    GameManager gameManager;
+
     CharState state;
 
-    public Character(int lifePoints, boolean isForeground)
+    public Character(int lifePoints, boolean isForeground, GameManager gameManager)
     {
 
         m_lifePoints = lifePoints;
@@ -40,6 +44,8 @@ public class Character {
         m_isInvincible = false;
 
         state = CharState.IDLE;
+
+        this.gameManager = gameManager;
 
     }
 
@@ -84,17 +90,20 @@ public class Character {
                 {
 
                     changeState(CharState.IDLE);
-
                     m_anim.playAnim("idle");
 
                 }
+
+                punchBehavior();
+
                 break;
 
             case DODGING:
                 if(System.currentTimeMillis() - startTime > dodgingTime)
                 {
 
-                    changeState(CharState.DODGING);
+                    changeState(CharState.IDLE);
+                    m_anim.playAnim("idle");
 
                 }
                 break;
@@ -103,7 +112,18 @@ public class Character {
                 if(System.currentTimeMillis() - startTime > fakingTime)
                 {
 
-                    changeState(CharState.FAKING);
+                    changeState(CharState.IDLE);
+                    m_anim.playAnim("idle");
+
+                }
+                break;
+
+            case DAMAGED:
+                if(System.currentTimeMillis() - startTime > damagedTime)
+                {
+
+                    changeState(CharState.IDLE);
+                    m_anim.playAnim("idle");
 
                 }
                 break;
@@ -123,6 +143,13 @@ public class Character {
         startTime = System.currentTimeMillis();
 
         state = newState;
+
+    }
+
+    private void punchBehavior()
+    {
+
+        gameManager.hit();
 
     }
 
