@@ -4,6 +4,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,13 +16,11 @@ import java.util.List;
 import Game.GameManager;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
-    private SensorManager mSensorManager;
-    private Sensor mSensor;
 
-    private long lastUpdate = 0;
-    private float lastX, lastY, lastZ;
-    private static final int SHAKE_THRESHOLD =0;
+    private SensorManager sManager;
+    private long timeSinceLastDodge;
 
+    private ViewInGame view;
     private GameManager gameManager;
 
     @Override
@@ -34,14 +33,13 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         // set to fullscreen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        mSensorManager = (SensorManager) getSystemService(this.SENSOR_SERVICE);
-        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorManager.registerListener(this, mSensor, mSensorManager.SENSOR_DELAY_NORMAL);
+        sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        //mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        ViewInGame view = new ViewInGame(this);
+        view = new ViewInGame(this);
         setContentView(view);
 
-
+        timeSinceLastDodge = SystemClock.uptimeMillis();
 
     }
 
@@ -49,28 +47,49 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent event) {
         Sensor mySensor = event.sensor;
 
-        if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
-
-            long curTime = System.currentTimeMillis();
-
-            if ((curTime - lastUpdate) > 100) {
-                long diffTime = (curTime - lastUpdate);
-                lastUpdate = curTime;
-
-                float speed = Math.abs(x + y + z - lastX - lastY - lastZ)/ diffTime * 10000;
-
-                if (speed > SHAKE_THRESHOLD) {
-                    //Log.i("X : ", Float.toString(y));
-                }
-
-                lastX = x;
-                lastY = y;
-                lastZ = z;
-            }
+//if sensor is unreliable, return void
+        if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE)
+        {
+            return;
         }
+
+        //else it will output the Roll, Pitch and Yawn values
+        if(event.sensor.getType() == Sensor.TYPE_GYROSCOPE)
+        {
+            /*tv.setText("Orientation X (Roll) :" + Float.toString(event.values[2] * (float)(180/Math.PI)) + "\n" +
+                    "Orientation Y (Pitch) :" + Float.toString(event.values[1] * (float)(180/Math.PI)) + "\n" +
+                    "Orientation Z (Yaw) :" + Float.toString(event.values[0] * (float)(180/Math.PI)));*/
+
+            //Si la vitesse de rotation autour de Z est superieur a 90 et que l'esquive n'est pas sous cooldown alors esquive a gauche
+            if((event.values[2] * (float)(180/Math.PI)) >= 180.0f && SystemClock.uptimeMillis() - timeSinceLastDodge >= 1000.0f) {
+                Log.i("pouet", "ESQUIVE GAUCHE");
+                timeSinceLastDodge = SystemClock.uptimeMillis();
+            }
+            else if((event.values[2] * (float)(180/Math.PI)) <= -180.0f && SystemClock.uptimeMillis() - timeSinceLastDodge >= 1000.0f) {
+                Log.i("pouet", "ESQUIVE DROITE");
+                timeSinceLastDodge = SystemClock.uptimeMillis();
+            }
+            //FRAPPES GAUCHE ET DROITE
+            if((event.values[0] * (float)(180/Math.PI)) >= 180.0f && SystemClock.uptimeMillis() - timeSinceLastDodge >= 1000.0f) {
+                Log.i("pouet", "FRAPPE GAUCHE");
+                timeSinceLastDodge = SystemClock.uptimeMillis();
+                view.input = ViewInGame.Input.LEFTYROT;
+            }
+            else if((event.values[0] * (float)(180/Math.PI)) <= -180.0f && SystemClock.uptimeMillis() - timeSinceLastDodge >= 1000.0f) {
+                Log.i("pouet", "FRAPPE DROITE");
+                timeSinceLastDodge = SystemClock.uptimeMillis();
+            }
+            //else if(SystemClock.uptimeMillis() - timeSinceLastDodge >= 1000.0f)
+                //tv.setText("REPOS");
+        }
+
+//        if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
+//        {
+//            tvRotation.setText("Rotation X (Roll) :" + Float.toString(event.values[2] * (float)(180/Math.PI)) + "\n" +
+//                            "Rotation Y (Pitch) :" + Float.toString(event.values[1] * (float)(180/Math.PI)) + "\n" +
+//                            "Rotation Z (Yaw) :" + Float.toString(event.values[0] * (float)(180/Math.PI)));
+//        }
+
     }
 
     @Override
@@ -79,15 +98,35 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     }
 
     //Stop listening to the accelerometer when user is out of app
+    @Override
     protected void onPause() {
         super.onPause();
-        mSensorManager.unregisterListener(this);
+        sManager.unregisterListener(this);
     }
 
 
     //Listen to the accelerometer when user is back on the app
+    @Override
     protected void onResume() {
-        super.onPause();
-        mSensorManager.registerListener(this, mSensor, mSensorManager.SENSOR_DELAY_NORMAL);
+
+        super.onResume();
+        /*register the sensor listener to listen to the gyroscope sensor, use the
+        callbacks defined in this class, and gather the sensor information as quick
+        as possible*/
+        sManager.registerListener(this, sManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),SensorManager.SENSOR_DELAY_FASTEST);
+        sManager.registerListener(this, sManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),SensorManager.SENSOR_DELAY_FASTEST);
+
+//        super.onPause();
+//        mSensorManager.registerListener(this, mSensor, mSensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onStop()
+    {
+
+        //unregister the sensor listener
+        sManager.unregisterListener(this);
+        super.onStop();
+
     }
 }

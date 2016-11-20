@@ -1,10 +1,5 @@
 package Game;
 
-import android.os.SystemClock;
-import android.provider.Settings;
-import android.util.Log;
-import android.view.View;
-
 import com.nonamestudio.mobileproject.ViewInGame;
 
 /**
@@ -13,30 +8,46 @@ import com.nonamestudio.mobileproject.ViewInGame;
 
 public class GameManager {
 
-    Character m_player1;
-    Character m_player2;
+    Character m_currentPlayer;
+    Character m_enemyPlayer;
 
-    ViewInGame m_context;
+    boolean vsIA;
 
-    long startTime;
-
-    public GameManager(ViewInGame context)
+    public GameManager(boolean vsIA)
     {
 
-        m_player1 = new Character(3, true);
-        m_player2 = new Character(3, false);
+        m_currentPlayer = new Character(3, true);
 
-        m_context = context;
+        m_enemyPlayer = new Character(3, false);
+
+        this.vsIA = vsIA;
 
     }
 
     public void update()
     {
 
-        if(m_player1 != null)
-        m_player1.update();
-        if(m_player2 != null)
-        m_player2.update();
+        if(m_currentPlayer != null)
+            m_currentPlayer.update();
+        if(m_enemyPlayer != null)
+            m_enemyPlayer.update();
+
+    }
+
+    public void updateInputs(ViewInGame.Input input)
+    {
+
+        Action playerActions = m_currentPlayer.getActions();
+        //Action enemyActions = m_enemyPlayer.getActions();
+
+        playerActions.resetInteractionStates();
+
+        if(input == ViewInGame.Input.LEFTYROT)
+        {
+
+            playerActions.setInteractionState(Interaction.PUNCH, true);
+
+        }
 
     }
 

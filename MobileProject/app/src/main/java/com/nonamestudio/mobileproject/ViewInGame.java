@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -13,7 +14,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.io.ByteArrayOutputStream;
+import java.nio.channels.NonReadableChannelException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +28,11 @@ class Drawable {
     public int x;
     public int y;
 
+    public int pX;
+    public int pY;
+
+    public float scale;
+
     public int zOrder;
 
 }
@@ -38,11 +44,29 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     private Paint mPaint;
     private float mFontSize;
 
+    public enum Input{
+
+        LEFTYROT,
+        RIGHTYROT,
+        LEFTZROT,
+        RIGHTZROT,
+        LEFTTOUCH,
+        RIGHTTOUCH,
+        NONE
+
+    }
+
+    public Input input = Input.NONE;
+
     static public Hashtable<String, Bitmap> imagesTable = new Hashtable<String, Bitmap>();
 
     static private ArrayList<Drawable> elementsToDraw = new ArrayList<Drawable>();
+    Comparator<Drawable> comparatorDrawable;
 
     private GameManager gameManager;
+
+    private float backgroundScale;
+    private Bitmap background;
 
     public ViewInGame(Context context) {
         super(context);
@@ -53,26 +77,21 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
         mPaint.setColor(Color.RED);
         mPaint.setTextSize(mFontSize);
 
+        // textures loading
         BitmapFactory.Options options = new BitmapFactory.Options();
-
         options.inScaled = false;
+
+        imagesTable.put("boxer", BitmapFactory.decodeResource(getResources(), R.drawable.boxer, options));
+        background =  BitmapFactory.decodeResource(getResources(), R.drawable.background, options);
 
         DisplayMetrics displaymetrics = new DisplayMetrics();
         ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-        int height = displaymetrics.heightPixels;
         int width = displaymetrics.widthPixels;
 
-        imagesTable.put("boxer", BitmapFactory.decodeResource(getResources(), R.drawable.boxer, options));
-        imagesTable.put("boxer", Bitmap.createScaledBitmap(imagesTable.get("boxer"),
-                (int)(imagesTable.get("boxer").getWidth() * ((float)width / imagesTable.get("boxer").getWidth()) * 2.3),
-                (int)(imagesTable.get("boxer").getHeight() * ((float)width / imagesTable.get("boxer").getWidth()) * 2.3), true));
 
-        imagesTable.put("background", BitmapFactory.decodeResource(getResources(), R.drawable.background, options));
-        imagesTable.put("background", Bitmap.createScaledBitmap(imagesTable.get("background"),
-                (int)(imagesTable.get("background").getWidth() * ((float)width / imagesTable.get("background").getWidth())),
-                (int)(imagesTable.get("background").getHeight() * ((float)width / imagesTable.get("background").getWidth())), true));
+        backgroundScale = (float)width / background.getWidth();
 
-        gameManager = new GameManager(this);
+        gameManager = new GameManager(true);
 
         getHolder().addCallback(this);
 
@@ -81,6 +100,11 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
         // Make ViewInGame focusable so it can handle events
         setFocusable(true);
 
+        comparatorDrawable = new Comparator<Drawable>() {
+            @Override
+            public int compare(Drawable d1, Drawable d2) {
+                return d1.zOrder - d2.zOrder;
+            }};
 
         //Log.i("info", " color " + mPaint.getColor());
 
@@ -114,38 +138,38 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
     }
 
-    public static void addElementToDraw(Bitmap element, float x, float y, String pos, int zOrder)
+    public static void addElementToDraw(Bitmap element, float x, float y, String pos, int zOrder, float scale)
     {
 
         if(pos.equals("center"))
-            addElementToDraw(element, x, y, 0.5f, 0.5f, zOrder);
+            addElementToDraw(element, x, y, 0.5f, 0.5f, zOrder, scale);
         else if(pos.equals("top"))
-            addElementToDraw(element, x, y, 0.5f, 0.0f, zOrder);
+            addElementToDraw(element, x, y, 0.5f, 0.0f, zOrder, scale);
         else if(pos.equals("topLeft"))
-            addElementToDraw(element, x, y, 0.0f, 0.0f, zOrder);
+            addElementToDraw(element, x, y, 0.0f, 0.0f, zOrder, scale);
         else if(pos.equals("topRight"))
-            addElementToDraw(element, x, y, 1.0f, 0.0f, zOrder);
+            addElementToDraw(element, x, y, 1.0f, 0.0f, zOrder, scale);
         else if(pos.equals("bottom"))
-            addElementToDraw(element, x, y, 0.5f, 1.0f, zOrder);
+            addElementToDraw(element, x, y, 0.5f, 1.0f, zOrder, scale);
         else if(pos.equals("bottomLeft"))
-            addElementToDraw(element, x, y, 0.0f, 1.0f, zOrder);
+            addElementToDraw(element, x, y, 0.0f, 1.0f, zOrder, scale);
         else if(pos.equals("bottomRight"))
-            addElementToDraw(element, x, y, 1.0f, 1.0f, zOrder);
+            addElementToDraw(element, x, y, 1.0f, 1.0f, zOrder, scale);
         else if(pos.equals("left"))
-            addElementToDraw(element, x, y, 0.0f, 0.5f, zOrder);
+            addElementToDraw(element, x, y, 0.0f, 0.5f, zOrder, scale);
         else if(pos.equals("right"))
-            addElementToDraw(element, x, y, 1.0f, 0.5f, zOrder);
+            addElementToDraw(element, x, y, 1.0f, 0.5f, zOrder, scale);
 
     }
 
     public static void addElementToDraw(Bitmap element, float x, float y)
     {
 
-        addElementToDraw(element, x, y, 0.0f, 0.0f, 0);
+        addElementToDraw(element, x, y, 0.0f, 0.0f, 0, 1.0f);
 
     }
 
-    public static void addElementToDraw(Bitmap element, float x, float y, float offsetX, float offsetY, int zOrder)
+    public static void addElementToDraw(Bitmap element, float x, float y, float offsetX, float offsetY, int zOrder, float scale)
     {
 
         if((x < 0.0f || x > 1.0f) || (y < 0.0f || y > 1.0f))
@@ -153,18 +177,23 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
         addElementToDraw(element,
                 (int)(x * MainThread.canvas.getWidth() - (offsetX * element.getWidth())),
-                (int)(y * MainThread.canvas.getHeight() - (offsetY * element.getHeight())), zOrder);
+                (int)(y * MainThread.canvas.getHeight() - (offsetY * element.getHeight())), zOrder, scale,
+                (int)(offsetX * element.getWidth()),
+                (int)(offsetY * element.getHeight()));
 
     }
 
-    public static void addElementToDraw(Bitmap element, int x, int y, int zOrder)
+    public static void addElementToDraw(Bitmap element, int x, int y, int zOrder, float scale, int px, int py)
     {
 
         Drawable drawable = new Drawable();
         drawable.image = element;
         drawable.x = x;
         drawable.y = y;
+        drawable.pX = px;
+        drawable.pY = py;
         drawable.zOrder = zOrder;
+        drawable.scale = scale;
 
         elementsToDraw.add(drawable);
 
@@ -175,23 +204,19 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
         super.draw(canvas);
 
-        drawImage(canvas, imagesTable.get("background"), 0, 0);
+        drawImage(canvas, background, 0, 0, 0, 0, backgroundScale);
 
-
-
-        Collections.sort(elementsToDraw, new Comparator<Drawable>() {
-            @Override
-            public int compare(Drawable d1, Drawable d2) {
-                return d1.zOrder - d2.zOrder;
-            }
-        });
+        Collections.sort(elementsToDraw, comparatorDrawable);
 
         for(int i = 0; i < elementsToDraw.size(); i++)
         {
 
             drawImage(canvas, elementsToDraw.get(i).image,
                     elementsToDraw.get(i).x,
-                    elementsToDraw.get(i).y);
+                    elementsToDraw.get(i).y,
+                    elementsToDraw.get(i).pX,
+                    elementsToDraw.get(i).pY,
+                    elementsToDraw.get(i).scale);
 
         }
 
@@ -201,22 +226,22 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
 
 
-    private void drawImage(Canvas canvas, Bitmap image, int x, int y)
+    private void drawImage(Canvas canvas, Bitmap image, int x, int y, int px, int py, float scale)
     {
 
-        mPaint.setColor(Color.RED);
-        mPaint.setAntiAlias(false);
-        mPaint.setDither(true);
-        mPaint.setFilterBitmap(false);
+        Matrix matrix = new Matrix();
 
-        canvas.drawBitmap(image, x, y, mPaint);
+        matrix.setScale(scale, scale, px, py);
+        matrix.postTranslate(x, y);
+
+        canvas.drawBitmap(image, matrix, mPaint);
 
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        Log.i("pouet", "touch");
+        //Log.i("pouet", "touch");
 
         invalidate();
         return true;
@@ -225,7 +250,11 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     public void update()
     {
 
+        gameManager.updateInputs(input);
+
         gameManager.update();
+
+        input = Input.NONE;
 
     }
 

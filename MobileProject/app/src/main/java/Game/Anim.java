@@ -16,7 +16,16 @@ import java.util.Hashtable;
 class Frame
 {
 
-    public Frame(int x, int y, int w, int h) { this.x = x; this.y = y; this.w = w; this.h = h; }
+    public Frame(int x, int y, int w, int h, Bitmap spriteSheet)
+    {
+
+        this.x = x; this.y = y; this.w = w; this.h = h;
+
+        bitmap = Bitmap.createBitmap(spriteSheet, x, y, w, h);
+
+    }
+
+    Bitmap bitmap;
 
     int x;
     int y;
@@ -62,18 +71,21 @@ class Timeline
     public void update()
     {
 
-        int timeFromStart = (int)((System.nanoTime() / 1000000) - startTime);
+        if(frames.size() > 1) {
 
-        if(timeFromStart > timeSteps.get(currentStep + 1))
-        {
+            int timeFromStart = (int) ((System.nanoTime() / 1000000) - startTime);
 
-            currentStep++;
-            currentFrame = frames.get(currentStep);
+            if (timeFromStart > timeSteps.get(currentStep + 1)) {
+
+                currentStep++;
+                currentFrame = frames.get(currentStep);
+
+            }
+
+            if (currentStep == frames.size() - 1)
+                start();
 
         }
-
-        if(currentStep == frames.size() - 1)
-            start();
 
     }
 
@@ -98,7 +110,9 @@ public class Anim {
 
     private int m_zOrder = 0;
 
-    public Anim(boolean isForeground, int zOrder)
+    private float scale = 1.0f;
+
+    public Anim(boolean isForeground)
     {
 
         spriteSheet = ViewInGame.imagesTable.get("boxer");
@@ -110,25 +124,27 @@ public class Anim {
             m_zOrder = 0;
 
         timelines.put("idle", new Timeline());
+        timelines.put("punch", new Timeline());
 
         if(!isForeground) {
             timelines.get("idle").addStep(new Frame(
                     (int) (0.011601 * spriteSheet.getWidth()),
                     (int) (0.003738 * spriteSheet.getHeight()),
                     (int) (0.088167 * spriteSheet.getWidth()),
-                    (int) (0.155140 * spriteSheet.getHeight())), 0);
+                    (int) (0.155140 * spriteSheet.getHeight()), spriteSheet), 0);
 
             timelines.get("idle").addStep(new Frame(
                     (int) (0.122970 * spriteSheet.getWidth()),
                     (int) (0.003738 * spriteSheet.getHeight()),
                     (int) (0.088167 * spriteSheet.getWidth()),
-                    (int) (0.155140 * spriteSheet.getHeight())), 200);
+                    (int) (0.155140 * spriteSheet.getHeight()), spriteSheet), 200);
 
             timelines.get("idle").addStep(new Frame(
                     (int) (0.011601 * spriteSheet.getWidth()),
                     (int) (0.003738 * spriteSheet.getHeight()),
                     (int) (0.088167 * spriteSheet.getWidth()),
-                    (int) (0.155140 * spriteSheet.getHeight())), 400);
+                    (int) (0.155140 * spriteSheet.getHeight()), spriteSheet), 400);
+
         }
         else
         {
@@ -137,23 +153,38 @@ public class Anim {
                     (int) (0.006961 * spriteSheet.getWidth()),
                     (int) (0.532710 * spriteSheet.getHeight()),
                     (int) (0.099768 * spriteSheet.getWidth()),
-                    (int) (0.091589 * spriteSheet.getHeight())), 0);
+                    (int) (0.091589 * spriteSheet.getHeight()), spriteSheet), 0);
 
             timelines.get("idle").addStep(new Frame(
                     (int) (0.350348 * spriteSheet.getWidth()),
                     (int) (0.532710 * spriteSheet.getHeight()),
                     (int) (0.078886 * spriteSheet.getWidth()),
-                    (int) (0.093458 * spriteSheet.getHeight())), 200);
+                    (int) (0.093458 * spriteSheet.getHeight()), spriteSheet), 200);
 
             timelines.get("idle").addStep(new Frame(
                     (int) (0.006961 * spriteSheet.getWidth()),
                     (int) (0.532710 * spriteSheet.getHeight()),
                     (int) (0.099768 * spriteSheet.getWidth()),
-                    (int) (0.091589 * spriteSheet.getHeight())), 400);
+                    (int) (0.091589 * spriteSheet.getHeight()), spriteSheet), 400);
+
+            timelines.get("punch").addStep(new Frame(
+                    (int) (0.113689 * spriteSheet.getWidth()),
+                    (int) (0.504673 * spriteSheet.getHeight()),
+                    (int) (0.078886 * spriteSheet.getWidth()),
+                    (int) (0.119626 * spriteSheet.getHeight()), spriteSheet), 0);
 
         }
 
         currentTimeline = timelines.get("idle");
+
+        currentTimeline.start();
+
+    }
+
+    public void playAnim(String animName)
+    {
+
+        currentTimeline = timelines.get(animName);
 
         currentTimeline.start();
 
@@ -164,17 +195,10 @@ public class Anim {
 
         currentTimeline.update();
 
-        Bitmap bPrime = Bitmap.createBitmap(spriteSheet,
-                currentTimeline.currentFrame.x,
-                currentTimeline.currentFrame.y,
-                currentTimeline.currentFrame.w,
-                currentTimeline.currentFrame.h);
-
         if(m_isForeground)
-            ViewInGame.addElementToDraw(bPrime, 0.5f, 1.0f, "bottom", m_zOrder);
+            ViewInGame.addElementToDraw(currentTimeline.currentFrame.bitmap, 0.5f, 1.0f, "bottom", m_zOrder, 12.0f);
         else
-            ViewInGame.addElementToDraw(bPrime, 0.5f, 0.1f, "top", m_zOrder);
-
+            ViewInGame.addElementToDraw(currentTimeline.currentFrame.bitmap, 0.5f, 0.1f, "top", m_zOrder, 12.0f);
 
     }
 
