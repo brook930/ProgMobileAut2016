@@ -29,7 +29,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        //mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         view = new ViewInGame(this);
         setContentView(view);
@@ -53,20 +52,23 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             if((event.values[2] * (float)(180/Math.PI)) >= 180.0f && SystemClock.uptimeMillis() - timeSinceLastDodge >= 300.0f) {
                 Log.i("pouet", "ESQUIVE GAUCHE");
                 timeSinceLastDodge = SystemClock.uptimeMillis();
+                view.input = ViewInGame.Input.LEFTZROT;
             }
             else if((event.values[2] * (float)(180/Math.PI)) <= -180.0f && SystemClock.uptimeMillis() - timeSinceLastDodge >= 300.0f) {
                 Log.i("pouet", "ESQUIVE DROITE");
                 timeSinceLastDodge = SystemClock.uptimeMillis();
+                view.input = ViewInGame.Input.RIGHTZROT;
             }
             //FRAPPES GAUCHE ET DROITE
             if((event.values[0] * (float)(180/Math.PI)) >= 180.0f && SystemClock.uptimeMillis() - timeSinceLastDodge >= 300.0f) {
+                Log.i("pouet", "FRAPPE DROITE");
+                timeSinceLastDodge = SystemClock.uptimeMillis();
+                view.input = ViewInGame.Input.RIGHTYROT;
+            }
+            else if((event.values[0] * (float)(180/Math.PI)) <= -180.0f && SystemClock.uptimeMillis() - timeSinceLastDodge >= 300.0f) {
                 Log.i("pouet", "FRAPPE GAUCHE");
                 timeSinceLastDodge = SystemClock.uptimeMillis();
                 view.input = ViewInGame.Input.LEFTYROT;
-            }
-            else if((event.values[0] * (float)(180/Math.PI)) <= -180.0f && SystemClock.uptimeMillis() - timeSinceLastDodge >= 300.0f) {
-                Log.i("pouet", "FRAPPE DROITE");
-                timeSinceLastDodge = SystemClock.uptimeMillis();
             }
 
         }

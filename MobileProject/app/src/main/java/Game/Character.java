@@ -24,8 +24,8 @@ public class Character {
     public Anim m_anim;
 
     long punchingTime = 300;
-    long dodgingTime;
-    long fakingTime;
+    long dodgingTime = 300;
+    long fakingTime = 300;
     long damagedTime = 300;
 
     long startTime = 0;
@@ -80,7 +80,7 @@ public class Character {
                 else if (actions.getInteractionState(Interaction.FAKE))
                 {
 
-                    changeState(CharState.DODGING);
+                    changeState(CharState.FAKING);
 
                 }
                 break;
@@ -133,7 +133,7 @@ public class Character {
 
         }
 
-        m_anim.update();
+        m_anim.update(actions.direction);
 
     }
 

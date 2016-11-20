@@ -139,6 +139,12 @@ public class Anim {
 
             timelines.get("idle").addStep(new Frame(123, 5, 44, 83, spriteSheet), 880);
 
+
+
+            timelines.get("punch").addStep(new Frame(197, 5, 44, 83, spriteSheet), 0);
+
+
+
             timelines.get("hit").addStep(new Frame(273, 3, 48, 85, spriteSheet), 0);
 
         }
@@ -159,6 +165,10 @@ public class Anim {
 
             timelines.get("punch").addStep(new Frame(49, 270, 34, 64, spriteSheet), 0);
 
+
+
+            timelines.get("hit").addStep(new Frame(97, 277, 41, 57, spriteSheet), 0);
+
         }
 
         currentTimeline = timelines.get("idle");
@@ -176,15 +186,21 @@ public class Anim {
 
     }
 
-    public void update()
+    public void update(Direction direction)
     {
 
         currentTimeline.update();
 
+        float scaleX = 12.0f;
+        float scaleY = 12.0f;
+
+        if(direction == Direction.LEFT)
+            scaleX = -scaleX;
+
         if(m_isForeground)
-            ViewInGame.addElementToDraw(currentTimeline.currentFrame.bitmap, 0.5f, 1.0f, "bottom", m_zOrder, 12.0f);
+            ViewInGame.addElementToDraw(currentTimeline.currentFrame.bitmap, 0.5f, 1.0f, "bottom", m_zOrder, scaleX, scaleY);
         else
-            ViewInGame.addElementToDraw(currentTimeline.currentFrame.bitmap, 0.5f, 0.2f, "top", m_zOrder, 12.0f);
+            ViewInGame.addElementToDraw(currentTimeline.currentFrame.bitmap, 0.5f, 0.2f, "top", m_zOrder, scaleX, scaleY);
 
     }
 

@@ -2,14 +2,34 @@ package Game;
 
 import com.nonamestudio.mobileproject.ViewInGame;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
+
 /**
  * Created by Maxime on 2016-11-05.
  */
+
+class InputInteraction
+{
+
+    public Interaction         m_interaction;
+    public Direction           m_direction;
+
+    public InputInteraction(Interaction interaction, Direction direction)
+    {
+
+        m_interaction = interaction; m_direction = direction;
+
+    }
+
+}
 
 public class GameManager {
 
     Character m_currentPlayer;
     Character m_enemyPlayer;
+
+    private Hashtable<ViewInGame.Input, InputInteraction> inputInteractions;
 
     boolean vsIA;
 
@@ -21,6 +41,16 @@ public class GameManager {
         m_enemyPlayer = new Character(3, false, this);
 
         this.vsIA = vsIA;
+
+        inputInteractions = new Hashtable<>();
+
+        inputInteractions.put(ViewInGame.Input.LEFTYROT, new InputInteraction(Interaction.PUNCH, Direction.LEFT));
+        inputInteractions.put(ViewInGame.Input.RIGHTYROT, new InputInteraction(Interaction.PUNCH, Direction.RIGHT));
+        inputInteractions.put(ViewInGame.Input.LEFTZROT, new InputInteraction(Interaction.DODGE, Direction.LEFT));
+        inputInteractions.put(ViewInGame.Input.RIGHTZROT, new InputInteraction(Interaction.DODGE, Direction.RIGHT));
+        inputInteractions.put(ViewInGame.Input.LEFTTOUCH, new InputInteraction(Interaction.FAKE, Direction.LEFT));
+        inputInteractions.put(ViewInGame.Input.RIGHTTOUCH, new InputInteraction(Interaction.FAKE, Direction.RIGHT));
+
 
     }
 
@@ -38,14 +68,16 @@ public class GameManager {
     {
 
         Action playerActions = m_currentPlayer.getActions();
-        //Action enemyActions = m_enemyPlayer.getActions();
+        Action enemyActions = m_enemyPlayer.getActions();
 
         playerActions.resetInteractionStates();
 
-        if(input == ViewInGame.Input.LEFTYROT)
-        {
+        if(input != ViewInGame.Input.NONE) {
 
-            playerActions.setInteractionState(Interaction.PUNCH, true);
+            playerActions.resetInteractionDirection();
+
+            playerActions.setInteractionState(inputInteractions.get(input).m_interaction, true);
+            playerActions.setInteractionDirection(inputInteractions.get(input).m_direction);
 
         }
 

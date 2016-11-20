@@ -71,10 +71,33 @@ public class Action {
 
     }
 
+    public void setInteractionDirection(Direction direction)
+    {
+
+        this.direction = direction;
+
+    }
+
+    public void reset()
+    {
+
+        resetInteractionStates();
+
+        resetInteractionDirection();
+
+    }
+
     public void resetInteractionStates()
     {
 
         initInteractions();
+
+    }
+
+    public void resetInteractionDirection()
+    {
+
+        direction = Direction.NONE;
 
     }
 

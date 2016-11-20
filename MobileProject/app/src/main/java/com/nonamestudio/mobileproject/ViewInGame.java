@@ -14,7 +14,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.nio.channels.NonReadableChannelException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +30,8 @@ class Drawable {
     public int pX;
     public int pY;
 
-    public float scale;
+    public float scaleX;
+    public float scaleY;
 
     public int zOrder;
 
@@ -138,38 +138,38 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
     }
 
-    public static void addElementToDraw(Bitmap element, float x, float y, String pos, int zOrder, float scale)
+    public static void addElementToDraw(Bitmap element, float x, float y, String pos, int zOrder, float scaleX, float scaleY)
     {
 
         if(pos.equals("center"))
-            addElementToDraw(element, x, y, 0.5f, 0.5f, zOrder, scale);
+            addElementToDraw(element, x, y, 0.5f, 0.5f, zOrder, scaleX, scaleY);
         else if(pos.equals("top"))
-            addElementToDraw(element, x, y, 0.5f, 0.0f, zOrder, scale);
+            addElementToDraw(element, x, y, 0.5f, 0.0f, zOrder, scaleX, scaleY);
         else if(pos.equals("topLeft"))
-            addElementToDraw(element, x, y, 0.0f, 0.0f, zOrder, scale);
+            addElementToDraw(element, x, y, 0.0f, 0.0f, zOrder, scaleX, scaleY);
         else if(pos.equals("topRight"))
-            addElementToDraw(element, x, y, 1.0f, 0.0f, zOrder, scale);
+            addElementToDraw(element, x, y, 1.0f, 0.0f, zOrder, scaleX, scaleY);
         else if(pos.equals("bottom"))
-            addElementToDraw(element, x, y, 0.5f, 1.0f, zOrder, scale);
+            addElementToDraw(element, x, y, 0.5f, 1.0f, zOrder, scaleX, scaleY);
         else if(pos.equals("bottomLeft"))
-            addElementToDraw(element, x, y, 0.0f, 1.0f, zOrder, scale);
+            addElementToDraw(element, x, y, 0.0f, 1.0f, zOrder, scaleX, scaleY);
         else if(pos.equals("bottomRight"))
-            addElementToDraw(element, x, y, 1.0f, 1.0f, zOrder, scale);
+            addElementToDraw(element, x, y, 1.0f, 1.0f, zOrder, scaleX, scaleY);
         else if(pos.equals("left"))
-            addElementToDraw(element, x, y, 0.0f, 0.5f, zOrder, scale);
+            addElementToDraw(element, x, y, 0.0f, 0.5f, zOrder, scaleX, scaleY);
         else if(pos.equals("right"))
-            addElementToDraw(element, x, y, 1.0f, 0.5f, zOrder, scale);
+            addElementToDraw(element, x, y, 1.0f, 0.5f, zOrder, scaleX, scaleY);
 
     }
 
     public static void addElementToDraw(Bitmap element, float x, float y)
     {
 
-        addElementToDraw(element, x, y, 0.0f, 0.0f, 0, 1.0f);
+        addElementToDraw(element, x, y, 0.0f, 0.0f, 0, 1.0f, 1.0f);
 
     }
 
-    public static void addElementToDraw(Bitmap element, float x, float y, float offsetX, float offsetY, int zOrder, float scale)
+    public static void addElementToDraw(Bitmap element, float x, float y, float offsetX, float offsetY, int zOrder, float scaleX, float scaleY)
     {
 
         if((x < 0.0f || x > 1.0f) || (y < 0.0f || y > 1.0f))
@@ -177,13 +177,14 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
         addElementToDraw(element,
                 (int)(x * MainThread.canvas.getWidth() - (offsetX * element.getWidth())),
-                (int)(y * MainThread.canvas.getHeight() - (offsetY * element.getHeight())), zOrder, scale,
+                (int)(y * MainThread.canvas.getHeight() - (offsetY * element.getHeight())),
+                zOrder, scaleX, scaleY,
                 (int)(offsetX * element.getWidth()),
                 (int)(offsetY * element.getHeight()));
 
     }
 
-    public static void addElementToDraw(Bitmap element, int x, int y, int zOrder, float scale, int px, int py)
+    public static void addElementToDraw(Bitmap element, int x, int y, int zOrder, float scaleX, float scaleY, int px, int py)
     {
 
         Drawable drawable = new Drawable();
@@ -193,7 +194,8 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
         drawable.pX = px;
         drawable.pY = py;
         drawable.zOrder = zOrder;
-        drawable.scale = scale;
+        drawable.scaleX = scaleX;
+        drawable.scaleY = scaleY;
 
         elementsToDraw.add(drawable);
 
@@ -204,7 +206,7 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
         super.draw(canvas);
 
-        drawImage(canvas, background, 0, 0, 0, 0, backgroundScale);
+        drawImage(canvas, background, 0, 0, 0, 0, backgroundScale, backgroundScale);
 
         Collections.sort(elementsToDraw, comparatorDrawable);
 
@@ -216,7 +218,8 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
                     elementsToDraw.get(i).y,
                     elementsToDraw.get(i).pX,
                     elementsToDraw.get(i).pY,
-                    elementsToDraw.get(i).scale);
+                    elementsToDraw.get(i).scaleX,
+                    elementsToDraw.get(i).scaleY);
 
         }
 
@@ -226,12 +229,12 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
 
 
-    private void drawImage(Canvas canvas, Bitmap image, int x, int y, int px, int py, float scale)
+    private void drawImage(Canvas canvas, Bitmap image, int x, int y, int px, int py, float scaleX, float scaleY)
     {
 
         Matrix matrix = new Matrix();
 
-        matrix.setScale(scale, scale, px, py);
+        matrix.setScale(scaleX, scaleY, px, py);
         matrix.postTranslate(x, y);
 
         canvas.drawBitmap(image, matrix, mPaint);
@@ -241,9 +244,23 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        //Log.i("pouet", "touch");
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        ((Activity)getContext()).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int centerX = displaymetrics.widthPixels / 2;
 
-        invalidate();
+        if(event.getAxisValue(0) <= centerX) {
+
+            Log.i("pouet", "touch left");
+            input = Input.LEFTTOUCH;
+
+        }
+        else if (event.getAxisValue(0) > centerX) {
+
+            Log.i("pouet", "touch right");
+            input = Input.RIGHTTOUCH;
+
+        }
+
         return true;
     }
 
