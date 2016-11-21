@@ -74,7 +74,8 @@ public class Action {
     public void setInteractionDirection(Direction direction)
     {
 
-        this.direction = direction;
+        if(this.direction == Direction.NONE)
+            this.direction = direction;
 
     }
 

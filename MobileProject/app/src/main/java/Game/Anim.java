@@ -124,8 +124,11 @@ public class Anim {
             m_zOrder = 0;
 
         timelines.put("idle", new Timeline());
+        timelines.put("prepPunch", new Timeline());
         timelines.put("punch", new Timeline());
         timelines.put("hit", new Timeline());
+        timelines.put("dodge", new Timeline());
+        timelines.put("fake", new Timeline());
 
         if(!isForeground) {
 
@@ -138,6 +141,9 @@ public class Anim {
             timelines.get("idle").addStep(new Frame(45, 2, 47, 83, spriteSheet), 660);
 
             timelines.get("idle").addStep(new Frame(123, 5, 44, 83, spriteSheet), 880);
+
+
+
 
 
 
@@ -163,11 +169,20 @@ public class Anim {
 
 
 
+            timelines.get("prepPunch").addStep(new Frame(287, 286, 47, 49, spriteSheet), 0);
+
+
+
             timelines.get("punch").addStep(new Frame(49, 270, 34, 64, spriteSheet), 0);
 
 
 
             timelines.get("hit").addStep(new Frame(97, 277, 41, 57, spriteSheet), 0);
+
+
+
+            timelines.get("dodge").addStep(new Frame(203, 286, 65, 49, spriteSheet), 0);
+            //timelines.get("dodge").addStep(new Frame(317, 288, 73, 48, spriteSheet), 0);
 
         }
 

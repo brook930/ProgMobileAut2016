@@ -7,6 +7,7 @@ package Game;
 enum CharState {
 
     IDLE,
+    PREPARINGPUNCH,
     PUNCHING,
     DODGING,
     FAKING,
@@ -23,10 +24,19 @@ public class Character {
     public Action actions;
     public Anim m_anim;
 
+    long preparingPunchTime = 200;
     long punchingTime = 300;
     long dodgingTime = 300;
     long fakingTime = 300;
     long damagedTime = 300;
+
+    long punchingCooldown = 0;
+    long dodgingCooldown = 0;
+    long fakingCooldown = 0;
+
+    long punchingCooldownConstants = 300;
+    long dodgingCooldownConstants = 300;
+    long fakingCooldownConstants = 300;
 
     long startTime = 0;
 
@@ -63,24 +73,41 @@ public class Character {
         {
 
             case IDLE:
-                if (actions.getInteractionState(Interaction.PUNCH))
+                if (actions.getInteractionState(Interaction.PUNCH) &&
+                        System.currentTimeMillis() - startTime > punchingCooldown)
                 {
 
-                    changeState(CharState.PUNCHING);
+                    changeState(CharState.PREPARINGPUNCH);
 
-                    m_anim.playAnim("punch");
+                    m_anim.playAnim("prepPunch");
 
                 }
-                else if (actions.getInteractionState(Interaction.DODGE))
+                else if (actions.getInteractionState(Interaction.DODGE) &&
+                        System.currentTimeMillis() - startTime > dodgingCooldown)
                 {
 
                     changeState(CharState.DODGING);
 
+                    m_anim.playAnim("dodge");
+
                 }
-                else if (actions.getInteractionState(Interaction.FAKE))
+                else if (actions.getInteractionState(Interaction.FAKE) &&
+                        System.currentTimeMillis() - startTime > fakingCooldown)
                 {
 
                     changeState(CharState.FAKING);
+                    m_anim.playAnim("prepPunch");
+
+
+                }
+                break;
+
+            case PREPARINGPUNCH:
+                if(System.currentTimeMillis() - startTime > preparingPunchTime)
+                {
+
+                    changeState(CharState.PUNCHING);
+                    m_anim.playAnim("punch");
 
                 }
                 break;
@@ -91,6 +118,7 @@ public class Character {
 
                     changeState(CharState.IDLE);
                     m_anim.playAnim("idle");
+                    punchingCooldown = punchingCooldownConstants;
 
                 }
 
@@ -104,6 +132,8 @@ public class Character {
 
                     changeState(CharState.IDLE);
                     m_anim.playAnim("idle");
+                    dodgingCooldown = dodgingCooldownConstants;
+
 
                 }
                 break;
@@ -114,6 +144,7 @@ public class Character {
 
                     changeState(CharState.IDLE);
                     m_anim.playAnim("idle");
+                    fakingCooldown = fakingCooldownConstants;
 
                 }
                 break;
@@ -143,6 +174,17 @@ public class Character {
         startTime = System.currentTimeMillis();
 
         state = newState;
+
+        punchingCooldown = 0;
+        dodgingCooldown = 0;
+        fakingCooldown = 0;
+
+        if(newState == CharState.IDLE) {
+
+            actions.resetInteractionStates();
+            actions.resetInteractionDirection();
+
+        }
 
     }
 

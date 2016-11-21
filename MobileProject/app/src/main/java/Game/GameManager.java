@@ -70,16 +70,14 @@ public class GameManager {
         Action playerActions = m_currentPlayer.getActions();
         Action enemyActions = m_enemyPlayer.getActions();
 
-        playerActions.resetInteractionStates();
-
         if(input != ViewInGame.Input.NONE) {
-
-            playerActions.resetInteractionDirection();
 
             playerActions.setInteractionState(inputInteractions.get(input).m_interaction, true);
             playerActions.setInteractionDirection(inputInteractions.get(input).m_direction);
 
         }
+
+        //ViewInGame.Input inputEnemy =
 
     }
 
