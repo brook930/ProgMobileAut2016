@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Hashtable;
 
 import Game.GameManager;
+import Game.SoundManager;
 
 class Drawable {
 
@@ -63,6 +64,7 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     static private ArrayList<Drawable> elementsToDraw = new ArrayList<Drawable>();
     Comparator<Drawable> comparatorDrawable;
 
+    private SoundManager soundManager;
     private GameManager gameManager;
 
     private float backgroundScale;
@@ -88,10 +90,10 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
         ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         int width = displaymetrics.widthPixels;
 
-
         backgroundScale = (float)width / background.getWidth();
 
-        gameManager = new GameManager(true);
+        soundManager = new SoundManager(context);
+        gameManager = new GameManager(true, soundManager);
 
         getHolder().addCallback(this);
 

@@ -32,8 +32,9 @@ public class GameManager {
     private Hashtable<ViewInGame.Input, InputInteraction> inputInteractions;
 
     boolean vsIA;
+    SoundManager m_soundManager;
 
-    public GameManager(boolean vsIA)
+    public GameManager(boolean vsIA, SoundManager soundManager)
     {
 
         m_currentPlayer = new Character(3, true, this);
@@ -41,6 +42,8 @@ public class GameManager {
         m_enemyPlayer = new Character(3, false, this);
 
         this.vsIA = vsIA;
+
+        m_soundManager = soundManager;
 
         inputInteractions = new Hashtable<>();
 
@@ -101,4 +104,28 @@ public class GameManager {
 
     }
 
+    public void playSound(String soundToPlay)
+    {
+        soundToPlay.toLowerCase();
+
+        switch(soundToPlay)
+        {
+            case "prepPunch":
+                m_soundManager.preparePunchSound.start();
+                break;
+            case "punch":
+                m_soundManager.punchSound.start();
+                break;
+
+            case "dodge":
+                m_soundManager.dodgeSound.start();
+                break;
+
+            case "fake":
+                break;
+
+            case "hit":
+                break;
+        }
+    }
 }

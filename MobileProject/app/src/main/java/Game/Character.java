@@ -1,5 +1,7 @@
 package Game;
 
+import com.nonamestudio.mobileproject.GameActivity;
+
 /**
  * Created by Maxime on 2016-11-05.
  */
@@ -78,7 +80,7 @@ public class Character {
                 {
 
                     changeState(CharState.PREPARINGPUNCH);
-
+                    gameManager.playSound("prepPunch");
                     m_anim.playAnim("prepPunch");
 
                 }
@@ -87,7 +89,7 @@ public class Character {
                 {
 
                     changeState(CharState.DODGING);
-
+                    gameManager.playSound("dodge");
                     m_anim.playAnim("dodge");
 
                 }
@@ -96,6 +98,7 @@ public class Character {
                 {
 
                     changeState(CharState.FAKING);
+                    gameManager.playSound("prepPunch");
                     m_anim.playAnim("prepPunch");
 
 
@@ -107,6 +110,7 @@ public class Character {
                 {
 
                     changeState(CharState.PUNCHING);
+                    gameManager.playSound("punch");
                     m_anim.playAnim("punch");
 
                 }
