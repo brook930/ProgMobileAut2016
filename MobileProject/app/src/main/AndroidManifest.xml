@@ -9,7 +9,7 @@
         android:supportsRtl="true">
 
         <activity
-            android:name=".SplashActivity"
+            android:name=".MainActivity"
             android:theme="@style/SplashTheme"
             android:screenOrientation="landscape">
             <intent-filter>

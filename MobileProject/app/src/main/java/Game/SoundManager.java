@@ -11,15 +11,17 @@ import com.nonamestudio.mobileproject.R;
 
 public class SoundManager {
 
-    public final MediaPlayer punchSound;
+    public final MediaPlayer hitSound;
     public final MediaPlayer dodgeSound;
     public final MediaPlayer preparePunchSound;
+    public final MediaPlayer punchSound;
 
     public SoundManager(Context context)
     {
-        punchSound = MediaPlayer.create(context, R.raw.punch);
+        hitSound = MediaPlayer.create(context, R.raw.hit);
         dodgeSound = MediaPlayer.create(context, R.raw.dodge);
         preparePunchSound = MediaPlayer.create(context, R.raw.prepare_punch);
+        punchSound = MediaPlayer.create(context, R.raw.punch);
 
     }
 }

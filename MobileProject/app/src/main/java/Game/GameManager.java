@@ -96,7 +96,7 @@ public class GameManager {
 
         if(m_enemyPlayer.state != CharState.DODGING)
         {
-
+            m_soundManager.hitSound.start();
             m_enemyPlayer.state = CharState.DAMAGED;
             m_enemyPlayer.m_anim.playAnim("hit");
 
@@ -113,6 +113,7 @@ public class GameManager {
             case "prepPunch":
                 m_soundManager.preparePunchSound.start();
                 break;
+
             case "punch":
                 m_soundManager.punchSound.start();
                 break;
@@ -125,6 +126,7 @@ public class GameManager {
                 break;
 
             case "hit":
+                m_soundManager.hitSound.start();
                 break;
         }
     }
