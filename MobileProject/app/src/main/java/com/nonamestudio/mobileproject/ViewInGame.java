@@ -40,7 +40,7 @@ class Drawable {
 
 public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
-    private MainThread thread;
+    public MainThread thread;
 
     private Paint mPaint;
     private float mFontSize;

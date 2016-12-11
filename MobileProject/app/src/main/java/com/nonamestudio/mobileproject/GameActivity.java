@@ -8,9 +8,12 @@ import android.media.MediaPlayer;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -18,6 +21,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private long timeSinceLastDodge;
 
     private ViewInGame view;
+
+    private boolean isGamePaused = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +85,17 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if (keyCode == KeyEvent.KEYCODE_BACK)
+        {
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
 
     //Stop listening to the accelerometer when user is out of app
     @Override

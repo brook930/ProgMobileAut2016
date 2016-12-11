@@ -20,6 +20,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //image button
     private ImageButton buttonPlay;
 
+    private MediaPlayer backgroundMusic;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,8 +30,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //setting the orientation to landscape
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        final MediaPlayer mp = MediaPlayer.create(this, R.raw.main_menu_theme);
-        mp.start();
+        backgroundMusic = MediaPlayer.create(this, R.raw.main_menu_theme);
+        backgroundMusic.start();
 
         //getting the button
         buttonPlay = (ImageButton) findViewById(R.id.buttonPlay);
@@ -39,9 +41,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(View v)
+    {
 
         //starting game activity
         startActivity(new Intent(this, GameActivity.class));
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        backgroundMusic.pause();
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        backgroundMusic.start();
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        backgroundMusic.stop();
+        backgroundMusic.reset();
     }
 }
