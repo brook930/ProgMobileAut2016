@@ -13,7 +13,8 @@ import static android.graphics.Color.RED;
  * Created by Maxime on 2016-11-05.
  */
 
-enum CharState {
+enum CharState
+{
 
     IDLE,
     PREPARINGPUNCH,
@@ -51,6 +52,7 @@ public class Character {
     long fakingCooldownConstants = 300;
 
     long startTime = 0;
+    private boolean isPlayer;
 
     GameManager gameManager;
 
@@ -79,11 +81,10 @@ public class Character {
         actions = new Action();
 
         m_isInvincible = false;
-
+        isPlayer = isForeground;
         state = CharState.IDLE;
 
         this.gameManager = gameManager;
-
     }
 
     public Action getActions()
@@ -133,18 +134,15 @@ public class Character {
             case PREPARINGPUNCH:
                 if(System.currentTimeMillis() - startTime > preparingPunchTime)
                 {
-
                     changeState(CharState.PUNCHING);
                     gameManager.playSound("punch");
                     m_anim.playAnim("punch");
-
                 }
                 break;
 
             case PUNCHING:
                 if(System.currentTimeMillis() - startTime > punchingTime)
                 {
-
                     changeState(CharState.IDLE);
                     m_anim.playAnim("idle");
                     punchingCooldown = punchingCooldownConstants;
@@ -163,7 +161,6 @@ public class Character {
                     m_anim.playAnim("idle");
                     dodgingCooldown = dodgingCooldownConstants;
 
-
                 }
                 break;
 
@@ -181,7 +178,6 @@ public class Character {
             case DAMAGED:
                 if(System.currentTimeMillis() - startTime > damagedTime)
                 {
-
                     changeState(CharState.IDLE);
                     m_anim.playAnim("idle");
 
@@ -201,7 +197,7 @@ public class Character {
 
     }
 
-    private void changeState(CharState newState)
+    protected void changeState(CharState newState)
     {
 
         startTime = System.currentTimeMillis();
@@ -221,10 +217,10 @@ public class Character {
 
     }
 
-    private void punchBehavior()
+    protected void punchBehavior()
     {
 
-        gameManager.hit();
+        gameManager.hit(isPlayer);
 
     }
 
@@ -239,7 +235,7 @@ public class Character {
 
     }
 
-    private void onDeath()
+    protected void onDeath()
     {}
 
 

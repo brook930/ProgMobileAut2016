@@ -145,12 +145,11 @@ public class Anim {
 
 
 
-
-
             timelines.get("punch").addStep(new Frame(197, 5, 44, 83, spriteSheet), 0);
 
 
 
+            
             timelines.get("hit").addStep(new Frame(273, 3, 48, 85, spriteSheet), 0);
 
         }

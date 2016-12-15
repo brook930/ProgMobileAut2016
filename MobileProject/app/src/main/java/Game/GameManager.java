@@ -4,6 +4,7 @@ import com.nonamestudio.mobileproject.ViewInGame;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Random;
 
 /**
  * Created by Maxime on 2016-11-05.
@@ -28,6 +29,9 @@ public class GameManager {
 
     Character m_currentPlayer;
     Character m_enemyPlayer;
+
+    private long startCooldownIA = 0;
+    private long cooldownIA = 5000;
 
     private Hashtable<ViewInGame.Input, InputInteraction> inputInteractions;
 
@@ -69,18 +73,96 @@ public class GameManager {
 
     public void updateInputs(ViewInGame.Input input)
     {
+        int dodgePunchChance = 35;
+        int dodgeFakeChance = 20;
+
+        int punchChance = 40;
+        int fakeChance = 65;
+
+        int punchWhileDodgeChance = 20;
+
+
 
         Action playerActions = m_currentPlayer.getActions();
         Action enemyActions = m_enemyPlayer.getActions();
 
-        if(input != ViewInGame.Input.NONE) {
-
+        if(input != ViewInGame.Input.NONE)
+        {
             playerActions.setInteractionState(inputInteractions.get(input).m_interaction, true);
             playerActions.setInteractionDirection(inputInteractions.get(input).m_direction);
-
         }
 
-        //ViewInGame.Input inputEnemy =
+
+        if( System.currentTimeMillis() - startCooldownIA > cooldownIA);
+        {
+            int randValue = new Random().nextInt(100);
+
+            if( playerActions.getInteractionState(Interaction.PUNCH)) // Si le joueur ne tape pas
+            {
+                if( playerActions.getDirection() == Direction.LEFT && randValue < dodgePunchChance) // 25% de chance d'éviter si attaque gauche
+                {
+                    enemyActions.setInteractionState( Interaction.DODGE, true);
+                    enemyActions.setInteractionDirection(Direction.RIGHT);
+                    startCooldownIA = System.currentTimeMillis();
+                }
+                else if( playerActions.getDirection() == Direction.RIGHT && randValue < dodgePunchChance) // 25% de chance d'éviter si attaque droite
+                {
+                    enemyActions.setInteractionState( Interaction.DODGE, true);
+                    enemyActions.setInteractionDirection(Direction.LEFT);
+                    startCooldownIA = System.currentTimeMillis();
+                }
+            }
+            else if( playerActions.getInteractionState(Interaction.FAKE))
+            {
+                if( playerActions.getDirection() == Direction.LEFT && randValue < dodgeFakeChance) // 25% de chance d'éviter si attaque gauche
+                {
+                    enemyActions.setInteractionState( Interaction.DODGE, true);
+                    enemyActions.setInteractionDirection(Direction.RIGHT);
+                    startCooldownIA = System.currentTimeMillis();
+                }
+                else if( playerActions.getDirection() == Direction.RIGHT && randValue < dodgeFakeChance) // 25% de chance d'éviter si attaque droite
+                {
+                    enemyActions.setInteractionState( Interaction.DODGE, true);
+                    enemyActions.setInteractionDirection(Direction.LEFT);
+                    startCooldownIA = System.currentTimeMillis();
+                }
+            }
+            else if( playerActions.getInteractionState(Interaction.DODGE))
+            {
+                if( playerActions.getDirection() == Direction.LEFT && randValue < punchWhileDodgeChance) // Chance de frapper la ou le jouur est en train d'esquiver
+                {
+                    enemyActions.setInteractionState(Interaction.PUNCH, true);
+                    enemyActions.setInteractionDirection(Direction.RIGHT);
+                    startCooldownIA = System.currentTimeMillis();
+                }
+                if( playerActions.getDirection() == Direction.RIGHT && randValue < punchWhileDodgeChance) // Chance de frapper la ou le jouur est en train d'esquiver
+                {
+                    enemyActions.setInteractionState(Interaction.PUNCH, true);
+                    enemyActions.setInteractionDirection(Direction.LEFT);
+                    startCooldownIA = System.currentTimeMillis();
+                }
+            }
+            else
+            {
+                if( randValue < punchChance)
+                {
+                    //TODO : Remettre ton putain de single line statement
+                    enemyActions.setInteractionState(Interaction.PUNCH, true);
+                    enemyActions.setInteractionDirection(Direction.RIGHT);
+                    startCooldownIA = System.currentTimeMillis();
+                }
+                else if( randValue >= punchChance && randValue < fakeChance)
+                {
+                    //TODO : Remettre ton putain de single line statement
+                    enemyActions.setInteractionState(Interaction.FAKE, true);
+                    enemyActions.setInteractionDirection(Direction.RIGHT);
+                    startCooldownIA = System.currentTimeMillis();
+                }
+            }
+        }
+
+
+
 
     }
 
@@ -91,17 +173,26 @@ public class GameManager {
 
     }
 
-    public void hit()
+    public void hit(boolean isPlayerSource)
     {
-
-        if(m_enemyPlayer.state != CharState.DODGING)
+        if( isPlayerSource)
         {
-            m_soundManager.hitSound.start();
-            m_enemyPlayer.state = CharState.DAMAGED;
-            m_enemyPlayer.m_anim.playAnim("hit");
-
+            if(m_enemyPlayer.state != CharState.DODGING)
+            {
+                m_soundManager.hitSound.start();
+                m_enemyPlayer.state = CharState.DAMAGED;
+                m_enemyPlayer.m_anim.playAnim("hit");
+            }
         }
-
+        else
+        {
+            if(m_currentPlayer.state != CharState.DODGING)
+            {
+                m_soundManager.hitSound.start();
+                m_currentPlayer.state = CharState.DAMAGED;
+                m_currentPlayer.m_anim.playAnim("hit");
+            }
+        }
     }
 
     public void playSound(String soundToPlay)
