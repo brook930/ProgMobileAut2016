@@ -1,6 +1,13 @@
 package Game;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
+
 import com.nonamestudio.mobileproject.GameActivity;
+import com.nonamestudio.mobileproject.MainThread;
+import com.nonamestudio.mobileproject.ViewInGame;
+
+import static android.graphics.Color.RED;
 
 /**
  * Created by Maxime on 2016-11-05.
@@ -26,6 +33,9 @@ public class Character {
     public Action actions;
     public Anim m_anim;
 
+    private String m_lifeBarPivot;
+    private float m_posLifeBarX;
+
     long preparingPunchTime = 200;
     long punchingTime = 300;
     long dodgingTime = 300;
@@ -50,6 +60,21 @@ public class Character {
     {
 
         m_lifePoints = lifePoints;
+        if(isForeground)
+        {
+
+            m_lifeBarPivot = "topLeft";
+            m_posLifeBarX = 0.0f;
+
+        }
+        else
+        {
+
+            m_lifeBarPivot =  "topRight";
+            m_posLifeBarX = 1.0f;
+
+        }
+
         m_anim = new Anim(isForeground);
         actions = new Action();
 
@@ -169,6 +194,10 @@ public class Character {
         }
 
         m_anim.update(actions.direction);
+
+        Bitmap lifeBar = Bitmap.createBitmap(10, 1, Bitmap.Config.RGB_565);
+        lifeBar.eraseColor(Color.GREEN);
+        ViewInGame.addElementToDraw(lifeBar, m_posLifeBarX, 0.0f, m_lifeBarPivot, 100, 80, 50);
 
     }
 
