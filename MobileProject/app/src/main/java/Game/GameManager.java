@@ -1,7 +1,22 @@
 package Game;
 
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+
+import com.nonamestudio.mobileproject.MainActivity;
 import com.nonamestudio.mobileproject.ViewInGame;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
@@ -31,23 +46,26 @@ public class GameManager {
     Character m_enemyPlayer;
 
     private long startCooldownIA = 0;
-    private long cooldownIA = 5000;
+    private long cooldownIA = 3000;
 
     private Hashtable<ViewInGame.Input, InputInteraction> inputInteractions;
 
     boolean vsIA;
     SoundManager m_soundManager;
+    Context m_context;
 
-    public GameManager(boolean vsIA, SoundManager soundManager)
+    public GameManager(boolean vsIA, SoundManager soundManager, Context context)
     {
 
-        m_currentPlayer = new Character(3, true, this);
+        m_currentPlayer = new Character(15, true, this);
 
-        m_enemyPlayer = new Character(3, false, this);
+        m_enemyPlayer = new Character(1, false, this);
 
         this.vsIA = vsIA;
 
         m_soundManager = soundManager;
+
+        m_context = context;
 
         inputInteractions = new Hashtable<>();
 
@@ -82,7 +100,7 @@ public class GameManager {
         int punchWhileDodgeChance = 20;
 
 
-
+        // Player Inputs
         Action playerActions = m_currentPlayer.getActions();
         Action enemyActions = m_enemyPlayer.getActions();
 
@@ -92,8 +110,10 @@ public class GameManager {
             playerActions.setInteractionDirection(inputInteractions.get(input).m_direction);
         }
 
+        // Enemy inputs
+        long deltaTime = System.currentTimeMillis() - startCooldownIA;
 
-        if( System.currentTimeMillis() - startCooldownIA > cooldownIA);
+        if( deltaTime > cooldownIA)
         {
             int randValue = new Random().nextInt(100);
 
@@ -158,7 +178,15 @@ public class GameManager {
                     enemyActions.setInteractionDirection(Direction.RIGHT);
                     startCooldownIA = System.currentTimeMillis();
                 }
+                else
+                {
+                    startCooldownIA = System.currentTimeMillis();
+                }
+
             }
+
+            startCooldownIA = System.currentTimeMillis();
+
         }
 
 
@@ -166,10 +194,12 @@ public class GameManager {
 
     }
 
-    public int gameOver()
+    public void gameOver(boolean playerWins)
     {
-
-        return 0;
+        if( playerWins)
+            showAlert("YOU");
+        else
+            showAlert("THE AI");
 
     }
 
@@ -180,7 +210,8 @@ public class GameManager {
             if(m_enemyPlayer.state != CharState.DODGING)
             {
                 m_soundManager.hitSound.start();
-                m_enemyPlayer.state = CharState.DAMAGED;
+                m_enemyPlayer.changeState(CharState.DAMAGED);
+                m_enemyPlayer.receiveDamage(1);
                 m_enemyPlayer.m_anim.playAnim("hit");
             }
         }
@@ -189,7 +220,8 @@ public class GameManager {
             if(m_currentPlayer.state != CharState.DODGING)
             {
                 m_soundManager.hitSound.start();
-                m_currentPlayer.state = CharState.DAMAGED;
+                m_currentPlayer.changeState(CharState.DAMAGED);
+                m_currentPlayer.receiveDamage(1);
                 m_currentPlayer.m_anim.playAnim("hit");
             }
         }
@@ -220,5 +252,19 @@ public class GameManager {
                 m_soundManager.hitSound.start();
                 break;
         }
+    }
+
+
+    private void showAlert(String victoriousP)
+    {
+        AlertDialog alertDialog = new AlertDialog.Builder(m_context).create();
+        alertDialog.setTitle("Alert");
+        alertDialog.setMessage("YOU WON");
+        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                return;
+            }
+        });
+        alertDialog.show();
     }
 }

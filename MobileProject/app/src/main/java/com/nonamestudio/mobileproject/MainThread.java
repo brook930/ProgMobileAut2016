@@ -1,6 +1,8 @@
 package com.nonamestudio.mobileproject;
 
 import android.graphics.Canvas;
+import android.os.Debug;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 /**
@@ -53,8 +55,13 @@ public class MainThread extends Thread {
 
                 }
 
-            } catch (Exception e) {}
-            finally{
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
 
                 if(canvas != null)
                 {

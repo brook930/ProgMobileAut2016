@@ -28,6 +28,7 @@ enum CharState
 public class Character {
 
     private int m_lifePoints;
+    private int m_initialLifePoints;
 
     private boolean m_isInvincible;
 
@@ -61,19 +62,19 @@ public class Character {
     public Character(int lifePoints, boolean isForeground, GameManager gameManager)
     {
 
-        m_lifePoints = lifePoints;
+        m_lifePoints = m_initialLifePoints = lifePoints;
         if(isForeground)
         {
 
             m_lifeBarPivot = "topLeft";
-            m_posLifeBarX = 0.0f;
+            m_posLifeBarX = 0.05f;
 
         }
         else
         {
 
             m_lifeBarPivot =  "topRight";
-            m_posLifeBarX = 1.0f;
+            m_posLifeBarX = 0.95f;
 
         }
 
@@ -137,19 +138,20 @@ public class Character {
                     changeState(CharState.PUNCHING);
                     gameManager.playSound("punch");
                     m_anim.playAnim("punch");
+
+                    punchBehavior();
                 }
                 break;
 
             case PUNCHING:
                 if(System.currentTimeMillis() - startTime > punchingTime)
                 {
+
                     changeState(CharState.IDLE);
                     m_anim.playAnim("idle");
                     punchingCooldown = punchingCooldownConstants;
 
                 }
-
-                punchBehavior();
 
                 break;
 
@@ -191,13 +193,21 @@ public class Character {
 
         m_anim.update(actions.direction);
 
-        Bitmap lifeBar = Bitmap.createBitmap(10, 1, Bitmap.Config.RGB_565);
-        lifeBar.eraseColor(Color.GREEN);
-        ViewInGame.addElementToDraw(lifeBar, m_posLifeBarX, 0.0f, m_lifeBarPivot, 100, 80, 50);
+        Bitmap lifeBarLayout = Bitmap.createBitmap(40, 1, Bitmap.Config.RGB_565);
+        lifeBarLayout.eraseColor(Color.RED);
+        ViewInGame.addElementToDraw(lifeBarLayout, m_posLifeBarX, 0.05f, m_lifeBarPivot, 100, 20, 50);
+        if(m_lifePoints > 0)
+        {
+
+            Bitmap lifeBar = Bitmap.createBitmap(40 * m_lifePoints / m_initialLifePoints, 1, Bitmap.Config.RGB_565);
+            lifeBar.eraseColor(Color.GREEN);
+            ViewInGame.addElementToDraw(lifeBar, m_posLifeBarX, 0.05f, m_lifeBarPivot, 101, 20, 50);
+
+        }
 
     }
 
-    protected void changeState(CharState newState)
+    public void changeState(CharState newState)
     {
 
         startTime = System.currentTimeMillis();
@@ -236,7 +246,11 @@ public class Character {
     }
 
     protected void onDeath()
-    {}
+    {
+
+        gameManager.gameOver(!isPlayer);
+
+    }
 
 
     public int getLifePoints() {

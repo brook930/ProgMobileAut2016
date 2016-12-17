@@ -93,7 +93,7 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
         backgroundScale = (float)width / background.getWidth();
 
         soundManager = new SoundManager(context);
-        gameManager = new GameManager(true, soundManager);
+        gameManager = new GameManager(true, soundManager, context);
 
         getHolder().addCallback(this);
 
@@ -206,7 +206,7 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void draw(Canvas canvas) {
 
-        super.draw(canvas);
+        //super.draw(canvas);
 
         drawImage(canvas, background, 0, 0, 0, 0, backgroundScale, backgroundScale);
 
