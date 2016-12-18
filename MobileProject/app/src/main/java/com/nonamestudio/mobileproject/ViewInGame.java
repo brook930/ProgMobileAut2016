@@ -49,6 +49,8 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     private Paint mPaint;
     private float mFontSize;
 
+    private boolean paused = false;
+
     public enum Input{
 
         LEFTYROT,
@@ -232,7 +234,8 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
         }
 
-        elementsToDraw.clear();
+        if(!paused)
+            elementsToDraw.clear();
 
     }
 
@@ -276,13 +279,29 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     public void update()
     {
 
-        gameManager.updateInputs(input);
+        if(!paused)
+        {
+            gameManager.updateInputs(input);
 
-        gameManager.update();
+            gameManager.update();
 
-        input = Input.NONE;
+            input = Input.NONE;
+        }
 
     }
 
+    public void pause()
+    {
+
+        paused = true;
+
+    }
+
+    public void unPause()
+    {
+
+        paused = false;
+
+    }
 
 }

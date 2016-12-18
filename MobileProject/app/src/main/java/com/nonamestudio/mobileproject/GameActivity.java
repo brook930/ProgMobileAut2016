@@ -1,7 +1,9 @@
 package com.nonamestudio.mobileproject;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -44,7 +46,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         setContentView(view);
 
         timeSinceLastDodge = SystemClock.uptimeMillis();
-
     }
 
     @Override
@@ -154,19 +155,20 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                     Log.i("ICI2","GameActivity");
                     alertDialog.show();
 */
+                    view.pause();
+
                     new AlertDialog.Builder(GameActivity.this)
                             .setTitle(msg.getData().getString(Constants.ALERT_TITLE))
+                            .setCancelable(false)
                             .setMessage("Are you sure you want to delete this entry?")
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            .setPositiveButton("pouet", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Log.i("pouet", "pouet");
-                                    Toast.makeText(GameActivity.this, "Restart", Toast.LENGTH_SHORT).show();
+                                    recreate();
                                 }
                             })
                             .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Log.i("nopouet", "nopouet");
-                                    Toast.makeText(GameActivity.this, "Quit", Toast.LENGTH_SHORT).show();
+                                    finish();
                                 }
                             })
                             .setIcon(android.R.drawable.ic_dialog_alert)
