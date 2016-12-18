@@ -1,9 +1,7 @@
 package com.nonamestudio.mobileproject;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -17,7 +15,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import Game.Constants;
 
@@ -142,38 +139,23 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             switch (msg.what) {
                 case Constants.MESSAGE_ALERT:
                     Log.i("ICI","GameActivity");
-      /*              Toast.makeText(GameActivity.this, "KO", Toast.LENGTH_SHORT).show();
-                    AlertDialog alertDialog = new AlertDialog.Builder(GameActivity.this).create();
-                    alertDialog.setTitle(msg.getData().getString(Constants.ALERT_TITLE));
-                    alertDialog.setMessage("Restart ?");
-                    alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Write your code here to execute after dialog closed
-                            Toast.makeText(GameActivity.this, "You clicked on OK", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    Log.i("ICI2","GameActivity");
-                    alertDialog.show();
-*/
                     view.pause();
-
-                    new AlertDialog.Builder(GameActivity.this)
+                    AlertDialog dial = new AlertDialog.Builder(GameActivity.this)
                             .setTitle(msg.getData().getString(Constants.ALERT_TITLE))
                             .setCancelable(false)
-                            .setMessage("Are you sure you want to delete this entry?")
-                            .setPositiveButton("pouet", new DialogInterface.OnClickListener() {
+                            .setMessage("The game is over! Want to play again?")
+                            .setPositiveButton("Restart", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     recreate();
                                 }
                             })
-                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            .setNegativeButton("Quit", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     finish();
                                 }
                             })
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
-
                     break;
             }
 

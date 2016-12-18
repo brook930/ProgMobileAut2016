@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -49,7 +50,9 @@ public class GameManager {
     Character m_enemyPlayer;
 
     private long startCooldownIA = 0;
+    private long startDodgeIA = 0;
     private long cooldownIA = 3000;
+    private long cooldownDodgeIA = 5;
 
     private Hashtable<ViewInGame.Input, InputInteraction> inputInteractions;
 
@@ -116,8 +119,9 @@ public class GameManager {
 
         // Enemy inputs
         long deltaTime = System.currentTimeMillis() - startCooldownIA;
+        long deltaTimeDodge = System.currentTimeMillis() - startDodgeIA;
 
-        if( m_currentPlayer.state.equals(CharState.PREPARINGPUNCH) || m_currentPlayer.state.equals(CharState.FAKING))
+        if( deltaTime > cooldownDodgeIA / 10 &&  (m_currentPlayer.state.equals(CharState.PREPARINGPUNCH) || m_currentPlayer.state.equals(CharState.FAKING)))
         {
             int randValue = new Random().nextInt(100);
             if( randValue < dodgeChance)
@@ -125,9 +129,9 @@ public class GameManager {
                 enemyActions.setInteractionState( Interaction.DODGE, true);
 
                 enemyActions.setInteractionDirection(  m_currentPlayer.getActions().direction.equals(Direction.LEFT) ? Direction.RIGHT : Direction.LEFT);
-
-                startCooldownIA = System.currentTimeMillis();
             }
+
+            startDodgeIA = System.currentTimeMillis();
         }
 
         if( deltaTime > cooldownIA) // Les actions aggressives de l'IA
@@ -178,10 +182,10 @@ public class GameManager {
     public void gameOver(boolean playerWins)
     {
         if( playerWins)
-            showAlert("YOU");
+            showAlert("YOU WIN");
         //showAlert("YOU");
         else
-            showAlert("THE AI");
+            showAlert("THE AI WINS");
 
     }
 
@@ -245,19 +249,6 @@ public class GameManager {
         bundle.putString(Constants.ALERT_TITLE, victoriousP);
         msg.setData(bundle);
         m_handler.sendMessage(msg);
-
-        /*
-        AlertDialog alertDialog = new AlertDialog.Builder(m_context).create();
-        alertDialog.setTitle(victoriousP);
-        alertDialog.setMessage("YOU WON");
-        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                return;
-            }
-        });
-        alertDialog.show();
-
-*/
     }
 
 
