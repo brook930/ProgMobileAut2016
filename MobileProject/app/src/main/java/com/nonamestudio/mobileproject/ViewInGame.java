@@ -2,12 +2,16 @@ package com.nonamestudio.mobileproject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -70,7 +74,9 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     private float backgroundScale;
     private Bitmap background;
 
-    public ViewInGame(Context context) {
+    private Handler m_handler;
+
+    public ViewInGame(Context context, Handler handler) {
         super(context);
 
         mFontSize = 17 * getResources().getDisplayMetrics().density;
@@ -93,7 +99,8 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
         backgroundScale = (float)width / background.getWidth();
 
         soundManager = new SoundManager(context);
-        gameManager = new GameManager(true, soundManager, context);
+        m_handler = handler;
+        gameManager = new GameManager(true, soundManager, getContext(), m_handler);
 
         getHolder().addCallback(this);
 
@@ -276,5 +283,6 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
         input = Input.NONE;
 
     }
+
 
 }

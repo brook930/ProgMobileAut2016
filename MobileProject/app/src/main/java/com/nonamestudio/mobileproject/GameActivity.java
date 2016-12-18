@@ -1,19 +1,23 @@
 package com.nonamestudio.mobileproject;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.MediaPlayer;
+import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
+import android.widget.Toast;
+
+import Game.Constants;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -36,7 +40,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        view = new ViewInGame(this);
+        view = new ViewInGame(this, m_handler);
         setContentView(view);
 
         timeSinceLastDodge = SystemClock.uptimeMillis();
@@ -129,4 +133,49 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         super.onStop();
 
     }
+
+
+    private final Handler m_handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case Constants.MESSAGE_ALERT:
+                    Log.i("ICI","GameActivity");
+      /*              Toast.makeText(GameActivity.this, "KO", Toast.LENGTH_SHORT).show();
+                    AlertDialog alertDialog = new AlertDialog.Builder(GameActivity.this).create();
+                    alertDialog.setTitle(msg.getData().getString(Constants.ALERT_TITLE));
+                    alertDialog.setMessage("Restart ?");
+                    alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Write your code here to execute after dialog closed
+                            Toast.makeText(GameActivity.this, "You clicked on OK", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    Log.i("ICI2","GameActivity");
+                    alertDialog.show();
+*/
+                    new AlertDialog.Builder(GameActivity.this)
+                            .setTitle(msg.getData().getString(Constants.ALERT_TITLE))
+                            .setMessage("Are you sure you want to delete this entry?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Log.i("pouet", "pouet");
+                                    Toast.makeText(GameActivity.this, "Restart", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Log.i("nopouet", "nopouet");
+                                    Toast.makeText(GameActivity.this, "Quit", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+
+                    break;
+            }
+
+        }
+    };
+
 }

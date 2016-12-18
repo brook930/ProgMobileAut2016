@@ -11,7 +11,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.nonamestudio.mobileproject.GameActivity;
 import com.nonamestudio.mobileproject.MainActivity;
 import com.nonamestudio.mobileproject.ViewInGame;
 
@@ -52,9 +55,12 @@ public class GameManager {
 
     boolean vsIA;
     SoundManager m_soundManager;
-    Context m_context;
 
-    public GameManager(boolean vsIA, SoundManager soundManager, Context context)
+    private Context m_context;
+
+    private Handler m_handler;
+
+    public GameManager(boolean vsIA, SoundManager soundManager, Context context, Handler handler)
     {
 
         m_currentPlayer = new Character(15, true, this);
@@ -65,8 +71,6 @@ public class GameManager {
 
         m_soundManager = soundManager;
 
-        m_context = context;
-
         inputInteractions = new Hashtable<>();
 
         inputInteractions.put(ViewInGame.Input.LEFTYROT, new InputInteraction(Interaction.PUNCH, Direction.LEFT));
@@ -76,7 +80,8 @@ public class GameManager {
         inputInteractions.put(ViewInGame.Input.LEFTTOUCH, new InputInteraction(Interaction.FAKE, Direction.LEFT));
         inputInteractions.put(ViewInGame.Input.RIGHTTOUCH, new InputInteraction(Interaction.FAKE, Direction.RIGHT));
 
-
+        m_context = context;
+        m_handler = handler;
     }
 
     public void update()
@@ -198,6 +203,7 @@ public class GameManager {
     {
         if( playerWins)
             showAlert("YOU");
+        //showAlert("YOU");
         else
             showAlert("THE AI");
 
@@ -254,11 +260,19 @@ public class GameManager {
         }
     }
 
-
     private void showAlert(String victoriousP)
     {
+
+        Log.i("ICI","ICI");
+        Message msg = m_handler.obtainMessage(Constants.MESSAGE_ALERT);
+        Bundle bundle = new Bundle();
+        bundle.putString(Constants.ALERT_TITLE, victoriousP);
+        msg.setData(bundle);
+        m_handler.sendMessage(msg);
+
+        /*
         AlertDialog alertDialog = new AlertDialog.Builder(m_context).create();
-        alertDialog.setTitle("Alert");
+        alertDialog.setTitle(victoriousP);
         alertDialog.setMessage("YOU WON");
         alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
@@ -266,5 +280,9 @@ public class GameManager {
             }
         });
         alertDialog.show();
+
+*/
     }
+
+
 }
