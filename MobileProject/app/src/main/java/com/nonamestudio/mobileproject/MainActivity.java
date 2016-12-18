@@ -21,12 +21,20 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.Profile;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -63,10 +71,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Toast.makeText(MainActivity.this, loginResult.getAccessToken().getSource().toString(), Toast.LENGTH_LONG).show();
+                GraphRequest request = GraphRequest.newMeRequest(
+                        loginResult.getAccessToken(),
+                        new GraphRequest.GraphJSONObjectCallback() {
+
+                            @Override
+                            public void onCompleted(
+                                    JSONObject object,
+                                    GraphResponse response) {
+
+                                JSONObject json = response.getJSONObject();
+                                try {
+                                    if(json != null){
+                                        String userName = json.getString("first_name") + " " + json.getString("last_name");
+                                        Toast.makeText(MainActivity.this, "Welcome " + userName, Toast.LENGTH_LONG).show();
+                                    }
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        });
+                //Mandatory
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id,first_name,last_name,email,gender,birthday");
+                request.setParameters(parameters);
+                request.executeAsync();
+
+                //Profile profile = Profile.getCurrentProfile();
+               // String name = profile.getName();
+               // Toast.makeText(MainActivity.this, parameters.get("first_name").toString(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(MainActivity.this, loginResult.getAccessToken().getSource().toString(), Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -76,8 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onError(FacebookException error) {
-                Log.d("Demacia", String.valueOf(error));
-                Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -106,8 +145,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v)
     {
-        //starting game activity
-        startActivity(new Intent(this, GameActivity.class));
+        AccessToken tokenIsLoggedIn = AccessToken.getCurrentAccessToken();
+
+        //User is connected
+        if(tokenIsLoggedIn != null) {
+            //starting game activity
+            startActivity(new Intent(this, GameActivity.class));
+        }
+        else {
+            Toast.makeText(this, "You must be logged in Facebook", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
