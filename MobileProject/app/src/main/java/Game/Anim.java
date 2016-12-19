@@ -161,7 +161,7 @@ public class Anim {
 
 
 
-            timelines.get("dodge").addStep(new Frame(206, 121, 41, 84, spriteSheet), 0);
+            timelines.get("dodge").addStep(new Frame(201, 121, 41, 84, spriteSheet), 0);
 
         }
         else

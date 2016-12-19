@@ -15,6 +15,10 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+
+import com.facebook.FacebookSdk;
 
 import Game.Constants;
 
@@ -29,6 +33,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
         super.onCreate(savedInstanceState);
 
         // turn title off
@@ -43,6 +49,33 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         setContentView(view);
 
         timeSinceLastDodge = SystemClock.uptimeMillis();
+
+        TextView playerName = new TextView(this);
+        playerName.setText("q");
+
+        /*
+         GraphRequest request = GraphRequest.newMeRequest(
+         loginResult.getAccessToken(),
+         new GraphRequest.GraphJSONObjectCallback() {
+
+        @Override
+        public void onCompleted(
+        JSONObject object,
+        GraphResponse response) {
+
+        JSONObject json = response.getJSONObject();
+        try {
+        if(json != null){
+        String userName = json.getString("first_name") + " " + json.getString("last_name");
+        Toast.makeText(MainActivity.this, "Welcome " + userName, Toast.LENGTH_LONG).show();
+        }
+
+        } catch (JSONException e) {
+        e.printStackTrace();
+        }
+        }
+
+        });*/
     }
 
     @Override
@@ -143,7 +176,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                     AlertDialog dial = new AlertDialog.Builder(GameActivity.this)
                             .setTitle(msg.getData().getString(Constants.ALERT_TITLE))
                             .setCancelable(false)
-                            .setMessage("The game is over! Want to play again?")
+                            .setMessage("The game is over ! Want to play again?")
                             .setPositiveButton("Restart", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     recreate();

@@ -44,9 +44,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //image button
     private ImageButton buttonPlay;
 
+    private ImageButton buttonQuit;
+
     private MediaPlayer backgroundMusic;
 
     private CallbackManager callbackManager;
+
+    public static String playerName;
 
 
     @Override
@@ -65,9 +69,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //getting the button
         buttonPlay = (ImageButton) findViewById(R.id.buttonPlay);
+        buttonQuit = (ImageButton) findViewById(R.id.buttonQuit);
 
         //adding a click listener
         buttonPlay.setOnClickListener(this);
+        buttonQuit.setOnClickListener(this);
 
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
@@ -89,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     if(json != null){
                                         String userName = json.getString("first_name") + " " + json.getString("last_name");
                                         Toast.makeText(MainActivity.this, "Welcome " + userName, Toast.LENGTH_LONG).show();
+
+                                        playerName = json.getString("first_name");
                                     }
 
                                 } catch (JSONException e) {
@@ -102,11 +110,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 parameters.putString("fields", "id,first_name,last_name,email,gender,birthday");
                 request.setParameters(parameters);
                 request.executeAsync();
-
-                //Profile profile = Profile.getCurrentProfile();
-               // String name = profile.getName();
-               // Toast.makeText(MainActivity.this, parameters.get("first_name").toString(), Toast.LENGTH_LONG).show();
-                //Toast.makeText(MainActivity.this, loginResult.getAccessToken().getSource().toString(), Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -121,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         //To obtain the key sent to facebook
-        /*
         try {
             PackageInfo info = getPackageManager().getPackageInfo(
                     "com.nonamestudio.mobileproject", PackageManager.GET_SIGNATURES);
@@ -133,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (PackageManager.NameNotFoundException e) {
         } catch (NoSuchAlgorithmException e) {
         }
-        */
+
     }
 
     @Override
@@ -145,15 +147,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v)
     {
-        AccessToken tokenIsLoggedIn = AccessToken.getCurrentAccessToken();
+        switch (v.getId()) {
+            case R.id.buttonPlay :
+                AccessToken tokenIsLoggedIn = AccessToken.getCurrentAccessToken();
 
-        //User is connected
-        if(tokenIsLoggedIn != null) {
-            //starting game activity
-            startActivity(new Intent(this, GameActivity.class));
-        }
-        else {
-            Toast.makeText(this, "You must be logged in Facebook", Toast.LENGTH_LONG).show();
+                //User is connected
+                if(tokenIsLoggedIn != null) {
+                    //starting game activity
+                    startActivity(new Intent(this, GameActivity.class));
+                }
+                else {
+                    Toast.makeText(this, "You must be logged in Facebook", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.buttonQuit :
+                finish();
+                break;
         }
     }
 

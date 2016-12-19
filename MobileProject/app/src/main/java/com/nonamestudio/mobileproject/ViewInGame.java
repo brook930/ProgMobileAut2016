@@ -215,9 +215,18 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void draw(Canvas canvas) {
 
-        //super.draw(canvas);
+        super.draw(canvas);
 
         drawImage(canvas, background, 0, 0, 0, 0, backgroundScale, backgroundScale);
+
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(60);
+
+        String string = MainActivity.playerName;
+
+        canvas.drawText(string,105, 160, paint);
+        //canvas.drawText("Ricardo",105, 160, paint);
 
         Collections.sort(elementsToDraw, comparatorDrawable);
 
@@ -262,13 +271,11 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
         if(event.getAxisValue(0) <= centerX) {
 
-            Log.i("pouet", "touch left");
             input = Input.LEFTTOUCH;
 
         }
         else if (event.getAxisValue(0) > centerX) {
 
-            Log.i("pouet", "touch right");
             input = Input.RIGHTTOUCH;
 
         }

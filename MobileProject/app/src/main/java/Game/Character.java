@@ -2,6 +2,7 @@ package Game;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Paint;
 
 import com.nonamestudio.mobileproject.GameActivity;
 import com.nonamestudio.mobileproject.MainThread;
@@ -75,6 +76,7 @@ public class Character {
 
             m_lifeBarPivot =  "topRight";
             m_posLifeBarX = 0.95f;
+            preparingPunchTime = 400;
 
         }
 
@@ -196,6 +198,7 @@ public class Character {
         Bitmap lifeBarLayout = Bitmap.createBitmap(40, 1, Bitmap.Config.RGB_565);
         lifeBarLayout.eraseColor(Color.RED);
         ViewInGame.addElementToDraw(lifeBarLayout, m_posLifeBarX, 0.05f, m_lifeBarPivot, 100, 20, 50);
+
         if(m_lifePoints > 0)
         {
 
