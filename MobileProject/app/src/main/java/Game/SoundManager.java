@@ -15,6 +15,7 @@ public class SoundManager {
     public final MediaPlayer dodgeSound;
     public final MediaPlayer preparePunchSound;
     public final MediaPlayer punchSound;
+    public final MediaPlayer bellSound;
 
     public SoundManager(Context context)
     {
@@ -22,6 +23,7 @@ public class SoundManager {
         dodgeSound = MediaPlayer.create(context, R.raw.dodge);
         preparePunchSound = MediaPlayer.create(context, R.raw.prepare_punch);
         punchSound = MediaPlayer.create(context, R.raw.punch);
+        bellSound = MediaPlayer.create(context, R.raw.bell);
 
     }
 }

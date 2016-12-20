@@ -5,6 +5,15 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
+<!--
+    <receiver android:name=".YOURRECEIVER">
+        <intent-filter>
+            <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+        </intent-filter>
+    </receiver>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+-->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

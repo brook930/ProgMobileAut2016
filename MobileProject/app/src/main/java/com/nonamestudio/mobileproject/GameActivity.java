@@ -1,11 +1,17 @@
 package com.nonamestudio.mobileproject;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -13,10 +19,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.FacebookSdk;
 
@@ -31,10 +41,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     private boolean isGamePaused = false;
 
+    private MediaPlayer backgroundMusic;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
         super.onCreate(savedInstanceState);
 
         // turn title off
@@ -43,6 +54,10 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         // set to fullscreen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        backgroundMusic = MediaPlayer.create(this, R.raw.main_menu_theme);
+        backgroundMusic.setLooping(true);
+        backgroundMusic.start();
+
         sManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         view = new ViewInGame(this, m_handler);
@@ -50,34 +65,10 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         timeSinceLastDodge = SystemClock.uptimeMillis();
 
-        TextView playerName = new TextView(this);
-        playerName.setText("q");
-
-        /*
-         GraphRequest request = GraphRequest.newMeRequest(
-         loginResult.getAccessToken(),
-         new GraphRequest.GraphJSONObjectCallback() {
-
-        @Override
-        public void onCompleted(
-        JSONObject object,
-        GraphResponse response) {
-
-        JSONObject json = response.getJSONObject();
-        try {
-        if(json != null){
-        String userName = json.getString("first_name") + " " + json.getString("last_name");
-        Toast.makeText(MainActivity.this, "Welcome " + userName, Toast.LENGTH_LONG).show();
-        }
-
-        } catch (JSONException e) {
-        e.printStackTrace();
-        }
-        }
-
-        });*/
     }
-
+    public void onClick(View v) {
+        showPauseMenu();
+    }
     @Override
     public void onSensorChanged(SensorEvent event) {
 
@@ -137,7 +128,9 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
         sManager.unregisterListener(this);
-    }
+
+        Log.i("GAME","ONPause");
+        backgroundMusic.pause();    }
 
 
     //Listen to the accelerometer when user is back on the app
@@ -151,10 +144,44 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         sManager.registerListener(this, sManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),SensorManager.SENSOR_DELAY_FASTEST);
         sManager.registerListener(this, sManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),SensorManager.SENSOR_DELAY_FASTEST);
 
+        if(isGamePaused == true) {
+            showPauseMenu();
+        }
+        else {
+            Log.i("GAME","ONRESUME1");
+            backgroundMusic.start();
+        }
+
 //        super.onPause();
 //        mSensorManager.registerListener(this, mSensor, mSensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    private void showPauseMenu() {
+
+        view.pause();
+
+        AlertDialog dial = new AlertDialog.Builder(GameActivity.this)
+                .setTitle("Paused")
+                .setCancelable(false)
+
+                .setPositiveButton("Resume", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        isGamePaused =false;
+                        view.unPause();
+                        Log.i("GAME","ONRESUME2");
+                        backgroundMusic.start();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+
+    }
     @Override
     protected void onStop()
     {
@@ -162,7 +189,18 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         //unregister the sensor listener
         sManager.unregisterListener(this);
         super.onStop();
+        isGamePaused = true;
+        Log.i("GAME","ONSTOP");
+        backgroundMusic.pause();
+    }
 
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        Log.i("GAME","ONDestroy");
+        backgroundMusic.stop();
+        backgroundMusic.release();
     }
 
 
@@ -194,5 +232,21 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         }
     };
+/*
+    public class NetworkStateReceiver extends BroadcastReceiver {
+        public void onReceive(Context context, Intent intent) {
+            Log.d("app","Network connectivity change");
+            if(intent.getExtras()!=null) {
+                NetworkInfo ni=(NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
+                if(ni!=null && ni.getState()==NetworkInfo.State.CONNECTED) {
+                    Log.i("APP","Network "+ni.getTypeName()+" connected");
+                    Toast.makeText(context, "Lost internet connection", Toast.LENGTH_SHORT);
+                } else if(intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY,Boolean.FALSE)) {
+                    Log.d("app","There's no network connectivity");
+                }
+            }
+        }
 
+    }
+*/
 }

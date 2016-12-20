@@ -85,6 +85,9 @@ public class GameManager {
 
         m_context = context;
         m_handler = handler;
+
+
+        m_soundManager.bellSound.start();
     }
 
     public void update()
@@ -181,11 +184,12 @@ public class GameManager {
 
     public void gameOver(boolean playerWins)
     {
+        m_soundManager.bellSound.start();
         if( playerWins)
-            showAlert("YOU WIN");
+            showAlert("YOU WIN !");
         //showAlert("YOU");
         else
-            showAlert("THE AI WINS");
+            showAlert("RICARDO WINS !");
 
     }
 
@@ -242,8 +246,6 @@ public class GameManager {
 
     private void showAlert(String victoriousP)
     {
-
-        Log.i("ICI","ICI");
         Message msg = m_handler.obtainMessage(Constants.MESSAGE_ALERT);
         Bundle bundle = new Bundle();
         bundle.putString(Constants.ALERT_TITLE, victoriousP);

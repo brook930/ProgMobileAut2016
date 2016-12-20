@@ -9,15 +9,12 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.media.Image;
 import android.media.MediaPlayer;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -28,14 +25,13 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
-import com.facebook.Profile;
-import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -50,9 +46,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private CallbackManager callbackManager;
 
-    public static String playerName;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         backgroundMusic = MediaPlayer.create(this, R.raw.main_menu_theme);
+        backgroundMusic.setLooping(true);
         backgroundMusic.start();
 
         //getting the button
@@ -94,9 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 try {
                                     if(json != null){
                                         String userName = json.getString("first_name") + " " + json.getString("last_name");
-                                        Toast.makeText(MainActivity.this, "Welcome " + userName, Toast.LENGTH_LONG).show();
-
-                                        playerName = json.getString("first_name");
+                                        Toast.makeText(MainActivity.this, "Welcome " + userName, Toast.LENGTH_SHORT).show();
                                     }
 
                                 } catch (JSONException e) {
@@ -170,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause()
     {
         super.onPause();
+
+        Log.i("MUSIC","ONPause");
         backgroundMusic.pause();
     }
 
@@ -177,14 +171,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume()
     {
         super.onResume();
-        backgroundMusic.start();
+
+        if (backgroundMusic == null) {
+            backgroundMusic = MediaPlayer.create(this, R.raw.main_menu_theme);
+            backgroundMusic.setLooping(true);
+
+            backgroundMusic.start();
+        }
     }
 
     @Override
     protected void onStop()
     {
         super.onStop();
+        Log.i("MUSIC","ONSTOP");
         backgroundMusic.stop();
-        backgroundMusic.reset();
+        backgroundMusic.release();
+        backgroundMusic = null;
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        Log.i("MUSIC","ONDestroy");
+        if (backgroundMusic != null) {
+            backgroundMusic.stop();
+            backgroundMusic.release();
+        }
     }
 }

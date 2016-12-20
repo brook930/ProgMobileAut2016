@@ -17,6 +17,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.ViewGroup;
+import android.widget.Button;
+
+import com.facebook.FacebookSdk;
+import com.facebook.Profile;
+import com.facebook.login.LoginManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,6 +85,7 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     private Handler m_handler;
 
     public ViewInGame(Context context, Handler handler) {
+
         super(context);
 
         mFontSize = 17 * getResources().getDisplayMetrics().density;
@@ -118,7 +125,6 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
             }};
 
         //Log.i("info", " color " + mPaint.getColor());
-
     }
 
     @Override
@@ -143,9 +149,13 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder)
     {
 
-        // we can safely start the game loop
-        thread.setRunning(true);
-        thread.start();
+        if (!thread.isAlive()) {
+            // we can safely start the game loop
+            //thread = null;
+            thread = new MainThread(getHolder(), this);
+            thread.setRunning(true);
+            thread.start();
+        }
 
     }
 
@@ -219,14 +229,18 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
 
         drawImage(canvas, background, 0, 0, 0, 0, backgroundScale, backgroundScale);
 
-        Paint paint = new Paint();
-        paint.setColor(Color.WHITE);
-        paint.setTextSize(60);
+        Paint paintPlayerName = new Paint();
+        paintPlayerName.setColor(Color.WHITE);
+        paintPlayerName.setTextSize(60);
+        Profile profile = Profile.getCurrentProfile();
 
-        String string = MainActivity.playerName;
+        canvas.drawText(profile.getFirstName().toUpperCase(),105, 160, paintPlayerName);
 
-        canvas.drawText(string,105, 160, paint);
-        //canvas.drawText("Ricardo",105, 160, paint);
+        Paint paintAIName = new Paint();
+        paintAIName.setColor(Color.WHITE);
+        paintAIName.setTextSize(60);
+        canvas.drawText("RICARDO",canvas.getWidth()-355, 160, paintAIName);
+      //  Log.i("TAMERE", String.valueOf(canvas.getWidth()));
 
         Collections.sort(elementsToDraw, comparatorDrawable);
 
@@ -310,5 +324,7 @@ public class ViewInGame extends SurfaceView implements SurfaceHolder.Callback {
         paused = false;
 
     }
+
+
 
 }
